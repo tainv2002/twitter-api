@@ -1,6 +1,6 @@
 import User from '~/models/schemas/User.schema'
 import databaseService from './database.services'
-import { RegisterRequestBody } from '~/models/requests/User.requests'
+import { LoginRequestBody, RegisterRequestBody } from '~/models/requests/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import { TokenType } from '~/constants/enum'
@@ -30,12 +30,7 @@ class UsersService {
     })
   }
 
-  async register(payload: RegisterRequestBody) {
-    const result = await databaseService.users.insertOne(
-      new User({ ...payload, date_of_birth: new Date(payload.date_of_birth), password: hashPassword(payload.password) })
-    )
-
-    const user_id = result.insertedId.toString()
+  private async signAccessAndRefreshToken(user_id: string) {
     const [access_token, refresh_token] = await Promise.all([
       this.signAccessToken(user_id),
       this.signRefreshToken(user_id)
@@ -44,10 +39,26 @@ class UsersService {
     return { access_token, refresh_token }
   }
 
+  async register(payload: RegisterRequestBody) {
+    const result = await databaseService.users.insertOne(
+      new User({ ...payload, date_of_birth: new Date(payload.date_of_birth), password: hashPassword(payload.password) })
+    )
+
+    const user_id = result.insertedId.toString()
+
+    const tokens = await this.signAccessAndRefreshToken(user_id)
+    return tokens
+  }
+
   async checkEmailExist(email: string) {
     const user = await databaseService.users.findOne({ email })
 
     return Boolean(user)
+  }
+
+  async login(user_id: string) {
+    const tokens = await this.signAccessAndRefreshToken(user_id)
+    return tokens
   }
 }
 
