@@ -21,8 +21,10 @@ export const validate = (validations: RunnableValidationChains<ValidationChain>)
 
     for (const key in errorsObject) {
       const { msg } = errorsObject[key]
+
       if (msg instanceof ErrorWithStatus && msg.status !== HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY) {
         // Trả về lỗi không phải là lỗi do validate
+
         return next(msg)
       } else {
         entityError.errors[key] = errorsObject[key]
