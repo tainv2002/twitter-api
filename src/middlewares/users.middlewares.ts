@@ -16,19 +16,6 @@ export const loginSchemaValidator = validate(
         errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
       },
       trim: true
-      // custom: {
-      //   options: async (value, { req }) => {
-      //     const hashedPassword = hashPassword(req.body.password)
-      //     const user = await databaseService.users.findOne({ email: value, password: hashedPassword })
-
-      //     if (!user) {
-      //       throw new Error(USERS_MESSAGES.USER_NOT_FOUND)
-      //     }
-
-      //     req.user = user
-      //     return true
-      //   }
-      // }
     },
     password: {
       isString: {
@@ -58,7 +45,7 @@ export const loginSchemaValidator = validate(
   })
 )
 
-export const loginValidator = async (
+export const loginDatabaseValidator = async (
   req: Request<object, object, LoginRequestBody>,
   res: Response,
   next: NextFunction
@@ -72,7 +59,7 @@ export const loginValidator = async (
       new EntityError({
         errors: {
           email: {
-            msg: USERS_MESSAGES.USER_NOT_FOUND
+            msg: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT
           }
         }
       })
@@ -114,16 +101,6 @@ export const registerSchemaValidator = validate(
         errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
       },
       trim: true
-      // custom: {
-      //   options: async (value) => {
-      //     const isExistEmail = await usersService.checkEmailExist(value)
-
-      //     if (isExistEmail) {
-      //       throw new Error(USERS_MESSAGES.EMAIL_ALREADY_EXISTS)
-      //     }
-      //     return isExistEmail
-      //   }
-      // }
     },
     password: {
       notEmpty: {
@@ -204,7 +181,7 @@ export const registerSchemaValidator = validate(
   })
 )
 
-export const registerValidator = async (
+export const registerDatabaseValidator = async (
   req: Request<object, object, RegisterRequestBody>,
   res: Response,
   next: NextFunction

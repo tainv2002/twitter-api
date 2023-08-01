@@ -1,23 +1,28 @@
 import { Router } from 'express'
 import {
   loginSchemaValidator,
-  loginValidator,
+  loginDatabaseValidator,
   registerSchemaValidator,
-  registerValidator
+  registerDatabaseValidator
 } from '~/middlewares/users.middlewares'
 import { loginController, registerController } from '~/controllers/users.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 
 const usersRouter = Router()
 
-usersRouter.post('/login', loginSchemaValidator, loginValidator, wrapRequestHandler(loginController))
+usersRouter.post('/login', loginSchemaValidator, loginDatabaseValidator, wrapRequestHandler(loginController))
 /**
  * Description: Register a new user
  * Path: /register
  * Method: POST
  * Body: { name: string, email: string, password: string, confirm_password: string, date_of_birth: ISOString }
  */
-usersRouter.post('/register', registerSchemaValidator, registerValidator, wrapRequestHandler(registerController))
+usersRouter.post(
+  '/register',
+  registerSchemaValidator,
+  registerDatabaseValidator,
+  wrapRequestHandler(registerController)
+)
 
 // usersRouter.get(
 //   '/test',
