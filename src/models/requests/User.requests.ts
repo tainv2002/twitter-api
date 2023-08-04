@@ -22,7 +22,7 @@ export interface RefreshTokenRequestBody {
   refresh_token: string
 }
 
-export interface EmailVerifyTokenRequestBody {
+export interface VerifyEmailTokenRequestBody {
   email_verify_token: string
 }
 
