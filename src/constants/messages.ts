@@ -19,12 +19,17 @@ export const USERS_MESSAGES = {
     'Confirm password must be 6-50 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol',
   CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_A_PASSWORD: 'Confirm password must be the same as password',
   DATE_OF_BIRTH_MUST_BE_ISO8601: 'Date of birth must be ISO 8601',
-  LOGIN_SUCCESSFULLY: 'Login successfully',
-  REGISTER_SUCCESSFULLY: 'Register successfully',
-  LOGOUT_SUCCESSFULLY: 'Logout successfully',
+  LOGIN_SUCCESSFUL: 'Login successful',
+  REGISTER_SUCCESSFUL: 'Register successful',
+  LOGOUT_SUCCESSFUL: 'Logout successful',
   ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
   ACCESS_TOKEN_IS_INVALID: 'Access token is invalid',
   REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
   REFRESH_TOKEN_IS_INVALID: 'Refresh token is invalid',
-  REFRESH_TOKEN_HAS_BEEN_USED_OR_DOES_NOT_EXIST: 'Refresh token has been used or does not exist'
+  REFRESH_TOKEN_HAS_BEEN_USED_OR_DOES_NOT_EXIST: 'Refresh token has been used or does not exist',
+  REFRESH_TOKEN_SUCCESSFUL: 'Refresh token successful',
+  EMAIL_VERIFY_TOKEN_IS_REQUIRED: 'Email verify token is required',
+  USER_NOT_FOUND: 'User not found',
+  EMAIL_ALREADY_VERIFIED: 'Email already verified',
+  EMAIL_VERIFY_SUCCESSFUL: 'Email verify successful'
 } as const

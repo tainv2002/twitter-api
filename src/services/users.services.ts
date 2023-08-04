@@ -3,10 +3,11 @@ import databaseService from './database.services'
 import { RegisterRequestBody } from '~/models/requests/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
-import { TokenType } from '~/constants/enum'
+import { TokenType, UserVerifyStatus } from '~/constants/enum'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
+import { Secret, SignOptions } from 'jsonwebtoken'
 config()
 
 class UsersService {
@@ -16,21 +17,38 @@ class UsersService {
         user_id,
         token_type: TokenType.AccessToken
       },
+      privateKey: process.env.JWT_SECRET_ACCESS_TOKEN as Secret,
       options: {
         expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN
       }
     })
   }
 
-  private signRefreshToken(user_id: string) {
+  private signRefreshToken(
+    user_id: string,
+    options: SignOptions = { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN }
+  ) {
     return signToken({
       payload: {
         user_id,
         token_type: TokenType.RefreshToken
       },
-      options: {
-        expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN
-      }
+      privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as Secret,
+      options
+    })
+  }
+
+  private signEmailVerifyToken(
+    user_id: string,
+    options: SignOptions = { expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPIRES_IN }
+  ) {
+    return signToken({
+      payload: {
+        user_id,
+        token_type: TokenType.EmailVerifyToken
+      },
+      privateKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as Secret,
+      options
     })
   }
 
@@ -44,14 +62,24 @@ class UsersService {
   }
 
   async register(payload: RegisterRequestBody) {
-    const result = await databaseService.users.insertOne(
-      new User({ ...payload, date_of_birth: new Date(payload.date_of_birth), password: hashPassword(payload.password) })
-    )
+    const user_id = new ObjectId()
+    const email_verify_token = await this.signEmailVerifyToken(user_id.toString())
 
-    const user_id = result.insertedId
+    await databaseService.users.insertOne(
+      new User({
+        ...payload,
+        _id: user_id,
+        date_of_birth: new Date(payload.date_of_birth),
+        password: hashPassword(payload.password),
+        email_verify_token
+      })
+    )
 
     const { access_token, refresh_token } = await this.signAccessAndRefreshToken(user_id.toString())
     await databaseService.refreshTokens.insertOne(new RefreshToken({ token: refresh_token, user_id }))
+
+    console.log('email_verify_token: ', email_verify_token)
+
     return { access_token, refresh_token }
   }
 
@@ -72,6 +100,40 @@ class UsersService {
 
   async logout(refresh_token: string) {
     await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+  }
+
+  async refreshToken({ refresh_token, user_id, exp }: { refresh_token: string; user_id: string; exp: number }) {
+    const [_, access_token, new_refresh_token] = await Promise.all([
+      databaseService.refreshTokens.deleteOne({ token: refresh_token }),
+      this.signAccessToken(user_id),
+      this.signRefreshToken(user_id)
+    ])
+    // await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    // const { refresh_token: new_refresh_token, access_token } = await this.signAccessAndRefreshToken(user_id)
+
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ token: new_refresh_token, user_id: new ObjectId(user_id) })
+    )
+
+    return { access_token, refresh_token: new_refresh_token }
+  }
+
+  async verifyEmail(user_id: string) {
+    const [{ access_token, refresh_token }] = await Promise.all([
+      this.signAccessAndRefreshToken(user_id),
+      databaseService.users.updateOne(
+        { _id: new ObjectId(user_id) },
+        {
+          $set: {
+            email_verify_token: '',
+            verify: UserVerifyStatus.Verified,
+            updated_at: new Date()
+          }
+        }
+      )
+    ])
+
+    return { access_token, refresh_token }
   }
 }
 

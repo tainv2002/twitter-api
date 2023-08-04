@@ -5,9 +5,16 @@ import {
   registerSchemaValidator,
   registerDatabaseValidator,
   accessTokenValidator,
-  refreshTokenValidator
+  refreshTokenValidator,
+  emailVerifyTokenValidator
 } from '~/middlewares/users.middlewares'
-import { loginController, logoutController, registerController } from '~/controllers/users.controllers'
+import {
+  emailVerifyTokenController,
+  loginController,
+  logoutController,
+  refreshTokenController,
+  registerController
+} from '~/controllers/users.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 import { USERS_MESSAGES } from '~/constants/messages'
 
@@ -41,5 +48,27 @@ usersRouter.post(
  * Body: { refresh_token: string }
  */
 usersRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapRequestHandler(logoutController))
+
+/**
+ * Description: Refresh a token
+ * Path: /refresh-token
+ * Method: POST
+ * Header: { Authorization: Bearer <access_token> }
+ * Body: { refresh_token: string }
+ */
+usersRouter.post(
+  '/refresh-token',
+  accessTokenValidator,
+  refreshTokenValidator,
+  wrapRequestHandler(refreshTokenController)
+)
+
+/**
+ * Description: Verify email when user client click on the link in email
+ * Path: /verify-email
+ * Method: POST
+ * Body: { email_verify_token: string }
+ */
+usersRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(emailVerifyTokenController))
 
 export default usersRouter
