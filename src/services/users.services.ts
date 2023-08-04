@@ -52,6 +52,20 @@ class UsersService {
     })
   }
 
+  private signForgotPasswordToken(
+    user_id: string,
+    options: SignOptions = { expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRES_IN }
+  ) {
+    return signToken({
+      payload: {
+        user_id,
+        token_type: TokenType.ForgotPasswordToken
+      },
+      privateKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as Secret,
+      options
+    })
+  }
+
   private async signAccessAndRefreshToken(user_id: string) {
     const [access_token, refresh_token] = await Promise.all([
       this.signAccessToken(user_id),
@@ -153,6 +167,27 @@ class UsersService {
     console.log('Resend email verify token: ', email_verify_token)
 
     return email_verify_token
+  }
+
+  async forgotPassword(user_id: string) {
+    const forgot_password_token = await this.signForgotPasswordToken(user_id)
+
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      {
+        $set: {
+          forgot_password_token
+        },
+        $currentDate: {
+          updated_at: true
+        }
+      }
+    )
+
+    // Gửi kèm đường link đến email người dùng: https://twitter.com/forgot-password?token={forgot_password_token}
+    console.log('Send forgot password token: ', forgot_password_token)
+
+    return forgot_password_token
   }
 }
 
