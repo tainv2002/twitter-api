@@ -18,5 +18,5 @@ app.get('/', (req, res) => {
 app.use(defaultErrorHandler)
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Twitter server listening on port ${port}`)
 })

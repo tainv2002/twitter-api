@@ -7,7 +7,8 @@ import {
   accessTokenValidator,
   refreshTokenValidator,
   verifyEmailTokenValidator,
-  forgotPasswordValidator
+  forgotPasswordValidator,
+  verifyForgotPasswordValidator
 } from '~/middlewares/users.middlewares'
 import {
   verifyEmailTokenController,
@@ -16,7 +17,8 @@ import {
   refreshTokenController,
   registerController,
   resendVerifyEmailController,
-  forgotPasswordController
+  forgotPasswordController,
+  verifyForgotPasswordController
 } from '~/controllers/users.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 
@@ -92,11 +94,15 @@ usersRouter.post('/resend-verify-email', accessTokenValidator, wrapRequestHandle
 usersRouter.post('/forgot-password', forgotPasswordValidator, wrapRequestHandler(forgotPasswordController))
 
 /**
- * Description: Verify email when user client click on the link in email
- * Path: /verify-email
+ * Description: Verify forgot password when user client click on the link in email
+ * Path: /verify-forgot-password
  * Method: POST
- * Body: { email_verify_token: string }
+ * Body: { forgot_password_token: string }
  */
-// usersRouter.post('/verify-forgot-password', verifyEmailTokenValidator, wrapRequestHandler(verifyEmailTokenController))
+usersRouter.post(
+  '/verify-forgot-password',
+  verifyForgotPasswordValidator,
+  wrapRequestHandler(verifyForgotPasswordController)
+)
 
 export default usersRouter
