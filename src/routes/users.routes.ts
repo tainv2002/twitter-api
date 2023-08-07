@@ -1,15 +1,16 @@
 import { Router } from 'express'
 import {
   loginSchemaValidator,
-  loginDatabaseValidator,
+  loginExistedUserValidator,
   registerSchemaValidator,
-  registerDatabaseValidator,
+  registerExistedUserValidator,
   accessTokenValidator,
   refreshTokenValidator,
   verifyEmailTokenValidator,
   forgotPasswordValidator,
   verifyForgotPasswordValidator,
-  resetPasswordValidator
+  resetPasswordValidator,
+  verifiedUserValidator
 } from '~/middlewares/users.middlewares'
 import {
   verifyEmailTokenController,
@@ -21,7 +22,8 @@ import {
   forgotPasswordController,
   verifyForgotPasswordController,
   resetPasswordController,
-  getMeController
+  getMeController,
+  updateMeController
 } from '~/controllers/users.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 
@@ -32,7 +34,7 @@ const usersRouter = Router()
  * Method: POST
  * Body: { email: string, password: string }
  */
-usersRouter.post('/login', loginSchemaValidator, loginDatabaseValidator, wrapRequestHandler(loginController))
+usersRouter.post('/login', loginSchemaValidator, loginExistedUserValidator, wrapRequestHandler(loginController))
 
 /**
  * Description: Register a new user
@@ -43,7 +45,7 @@ usersRouter.post('/login', loginSchemaValidator, loginDatabaseValidator, wrapReq
 usersRouter.post(
   '/register',
   registerSchemaValidator,
-  registerDatabaseValidator,
+  registerExistedUserValidator,
   wrapRequestHandler(registerController)
 )
 
@@ -117,11 +119,12 @@ usersRouter.post(
 usersRouter.post('/reset-password', resetPasswordValidator, wrapRequestHandler(resetPasswordController))
 
 /**
- * Description: Get my profile
+ * Description: Update my profile
  * Path: /me
  * Method: GET
  * Header: { Authorization: Bearer <access_token> }
+ * Body: UserSchema
  */
-usersRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
+usersRouter.patch('/me', accessTokenValidator, verifiedUserValidator, wrapRequestHandler(updateMeController))
 
 export default usersRouter

@@ -20,9 +20,9 @@ import usersService from '~/services/users.services'
 
 export const loginController = async (req: Request<object, object, LoginRequestBody>, res: Response) => {
   const { user } = req
-  const user_id = (user as WithId<User>)._id
+  const { _id: user_id, verify } = user as WithId<User>
 
-  const data = await usersService.login(user_id.toString())
+  const data = await usersService.login({ user_id: user_id.toString(), verify })
 
   res.json({
     message: USERS_MESSAGES.LOGIN_SUCCESSFUL,
@@ -117,9 +117,9 @@ export const forgotPasswordController = async (
   req: Request<object, object, ForgotPasswordRequestBody>,
   res: Response
 ) => {
-  const user_id = (req.user as WithId<User>)._id
+  const { _id: user_id, verify } = req.user as WithId<User>
 
-  await usersService.forgotPassword(user_id.toString())
+  await usersService.forgotPassword({ user_id: user_id.toString(), verify })
 
   return res.json({
     message: USERS_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD
@@ -149,7 +149,7 @@ export const resetPasswordController = async (
   })
 }
 
-export const getMeController = async (req: Request<object, object, ResetPasswordRequestBody>, res: Response) => {
+export const getMeController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
 
   const data = await usersService.getMe(user_id)
@@ -157,5 +157,16 @@ export const getMeController = async (req: Request<object, object, ResetPassword
   return res.json({
     message: USERS_MESSAGES.GET_ME_SUCCESSFULLY,
     data
+  })
+}
+
+export const updateMeController = async (req: Request<object, object, ResetPasswordRequestBody>, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+
+  // const data = await usersService.getMe(user_id)
+
+  return res.json({
+    message: USERS_MESSAGES.UPDATE_ME_SUCCESSFULLY
+    // data
   })
 }

@@ -3,7 +3,7 @@ import { ParamSchema, Schema, checkSchema } from 'express-validator'
 import HTTP_STATUS_CODE from '~/constants/httpStatusCode'
 import { USERS_MESSAGES } from '~/constants/messages'
 import { EntityError, ErrorWithStatus } from '~/models/Errors'
-import { LoginRequestBody, RegisterRequestBody } from '~/models/requests/User.requests'
+import { LoginRequestBody, RegisterRequestBody, TokenPayload } from '~/models/requests/User.requests'
 import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
 import { hashPassword } from '~/utils/crypto'
@@ -13,6 +13,7 @@ import { JsonWebTokenError, Secret } from 'jsonwebtoken'
 import capitalize from 'lodash/capitalize'
 import { config } from 'dotenv'
 import { ObjectId } from 'mongodb'
+import { UserVerifyStatus } from '~/constants/enum'
 config()
 
 const passwordSchema: ParamSchema = {
@@ -144,7 +145,7 @@ export const loginSchemaValidator = validate(
   )
 )
 
-export const loginDatabaseValidator = async (
+export const loginExistedUserValidator = async (
   req: Request<object, object, LoginRequestBody>,
   res: Response,
   next: NextFunction
@@ -219,7 +220,7 @@ export const registerSchemaValidator = validate(
   )
 )
 
-export const registerDatabaseValidator = async (
+export const registerExistedUserValidator = async (
   req: Request<object, object, RegisterRequestBody>,
   res: Response,
   next: NextFunction
@@ -413,3 +414,18 @@ export const resetPasswordValidator = validate(
     ['body']
   )
 )
+
+export const verifiedUserValidator = (req: Request, res: Response, next: NextFunction) => {
+  const { verify } = req.decoded_authorization as TokenPayload
+
+  if (verify !== UserVerifyStatus.Verified) {
+    return next(
+      new ErrorWithStatus({
+        message: USERS_MESSAGES.USER_NOT_VERIFIED,
+        status: HTTP_STATUS_CODE.FORBIDDEN
+      })
+    )
+  }
+
+  next()
+}
