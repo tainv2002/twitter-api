@@ -14,7 +14,8 @@ import {
   ForgotPasswordRequestBody,
   VerifyForgotPasswordRequestBody,
   ResetPasswordRequestBody,
-  UpdateMeRequestBody
+  UpdateMeRequestBody,
+  GetProfileRequestParam
 } from '~/models/requests/User.requests'
 import User from '~/models/schemas/User.schema'
 import databaseService from '~/services/database.services'
@@ -170,5 +171,16 @@ export const updateMeController = async (req: Request<object, object, UpdateMeRe
   return res.json({
     message: USERS_MESSAGES.UPDATE_ME_SUCCESSFULLY,
     data
+  })
+}
+
+export const getProfileController = async (req: Request<GetProfileRequestParam>, res: Response) => {
+  const { username } = req.params
+
+  const user = await usersService.getProfile(username)
+
+  return res.json({
+    message: USERS_MESSAGES.GET_PROFILE_SUCCESSFULLY,
+    data: user
   })
 }

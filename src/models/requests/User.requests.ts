@@ -56,3 +56,7 @@ export interface UpdateMeRequestBody {
   avatar?: string
   cover_photo?: string
 }
+
+export interface GetProfileRequestParam {
+  username: string
+}
