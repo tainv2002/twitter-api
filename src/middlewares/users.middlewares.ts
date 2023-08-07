@@ -16,115 +16,161 @@ import { ObjectId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enum'
 config()
 
-const passwordSchema: ParamSchema = {
-  isString: {
-    bail: true,
-    errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
-  },
-  isLength: {
-    options: {
-      max: 50,
-      min: 6
+const schemaValidator: Record<string, ParamSchema> = {
+  password: {
+    isString: {
+      bail: true,
+      errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
     },
-    bail: true,
-    errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-  },
-  isStrongPassword: {
-    options: {
-      minLength: 6,
-      minLowercase: 1,
-      minUppercase: 1,
-      minNumbers: 1,
-      minSymbols: 1
+    isLength: {
+      options: {
+        max: 50,
+        min: 6
+      },
+      bail: true,
+      errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
     },
-    bail: true,
-    errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
-  }
-}
-
-const confirmPasswordSchema: ParamSchema = {
-  notEmpty: {
-    bail: true,
-    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
-  },
-  isString: {
-    bail: true,
-    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING
-  },
-  isLength: {
-    options: {
-      max: 50,
-      min: 6
-    },
-    bail: true,
-    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-  },
-  isStrongPassword: {
-    options: {
-      minLength: 6,
-      minLowercase: 1,
-      minUppercase: 1,
-      minNumbers: 1,
-      minSymbols: 1
-    },
-    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG,
-    bail: true
-  },
-  custom: {
-    options: (value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_A_PASSWORD)
-      }
-      return true
+    isStrongPassword: {
+      options: {
+        minLength: 6,
+        minLowercase: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 1
+      },
+      bail: true,
+      errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
     }
-  }
-}
-
-const forgotPasswordTokenSchema: ParamSchema = {
-  trim: true,
-  custom: {
-    options: async (value, { req }) => {
-      if (!value) {
-        throw new ErrorWithStatus({
-          message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED,
-          status: HTTP_STATUS_CODE.UNAUTHORIZED
-        })
+  },
+  confirm_password: {
+    notEmpty: {
+      bail: true,
+      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
+    },
+    isString: {
+      bail: true,
+      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING
+    },
+    isLength: {
+      options: {
+        max: 50,
+        min: 6
+      },
+      bail: true,
+      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
+    },
+    isStrongPassword: {
+      options: {
+        minLength: 6,
+        minLowercase: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 1
+      },
+      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG,
+      bail: true
+    },
+    custom: {
+      options: (value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_A_PASSWORD)
+        }
+        return true
       }
-
-      try {
-        const decoded_forgot_password_token = await verifyToken({
-          token: value,
-          secretOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as Secret
-        })
-
-        const user = await databaseService.users.findOne({
-          _id: new ObjectId(decoded_forgot_password_token.user_id)
-        })
-
-        if (!user) {
+    }
+  },
+  forgot_password_token: {
+    trim: true,
+    custom: {
+      options: async (value, { req }) => {
+        if (!value) {
           throw new ErrorWithStatus({
-            message: USERS_MESSAGES.USER_NOT_FOUND,
+            message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED,
             status: HTTP_STATUS_CODE.UNAUTHORIZED
           })
         }
 
-        if (user.forgot_password_token !== value) {
-          throw new ErrorWithStatus({
-            message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID,
-            status: HTTP_STATUS_CODE.UNAUTHORIZED
+        try {
+          const decoded_forgot_password_token = await verifyToken({
+            token: value,
+            secretOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as Secret
           })
-        }
 
-        ;(req as Request).decoded_forgot_password_token = decoded_forgot_password_token
-      } catch (error) {
-        if (error instanceof JsonWebTokenError) {
-          throw new ErrorWithStatus({
-            message: capitalize(error.message),
-            status: HTTP_STATUS_CODE.UNAUTHORIZED
+          const user = await databaseService.users.findOne({
+            _id: new ObjectId(decoded_forgot_password_token.user_id)
           })
+
+          if (!user) {
+            throw new ErrorWithStatus({
+              message: USERS_MESSAGES.USER_NOT_FOUND,
+              status: HTTP_STATUS_CODE.UNAUTHORIZED
+            })
+          }
+
+          if (user.forgot_password_token !== value) {
+            throw new ErrorWithStatus({
+              message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID,
+              status: HTTP_STATUS_CODE.UNAUTHORIZED
+            })
+          }
+
+          ;(req as Request).decoded_forgot_password_token = decoded_forgot_password_token
+        } catch (error) {
+          if (error instanceof JsonWebTokenError) {
+            throw new ErrorWithStatus({
+              message: capitalize(error.message),
+              status: HTTP_STATUS_CODE.UNAUTHORIZED
+            })
+          }
+          throw error
         }
-        throw error
       }
+    }
+  },
+  name: {
+    optional: true,
+    notEmpty: {
+      errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED,
+      bail: true
+    },
+    isString: {
+      bail: true,
+      errorMessage: USERS_MESSAGES.NAME_MUST_BE_A_STRING
+    },
+    isLength: {
+      options: {
+        max: 100,
+        min: 1
+      },
+      bail: true,
+      errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_100
+    },
+    trim: true
+  },
+  date_of_birth: {
+    isISO8601: {
+      options: {
+        strict: true,
+        strictSeparator: true
+      },
+      errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_MUST_BE_ISO8601,
+      bail: true
+    }
+  },
+  image: {
+    optional: true,
+    isString: {
+      bail: true,
+      errorMessage: USERS_MESSAGES.IMAGE_URL_MUST_BE_A_STRING
+    },
+    trim: true,
+    isLength: {
+      options: {
+        max: 200,
+        min: 1
+      },
+      bail: true,
+      errorMessage: USERS_MESSAGES.IMAGE_URL_LENGTH_MUST_BE_FROM_1_TO_200
     }
   }
 }
@@ -139,7 +185,7 @@ export const loginSchemaValidator = validate(
         },
         trim: true
       },
-      password: passwordSchema
+      password: schemaValidator['password']
     },
     ['body']
   )
@@ -173,25 +219,7 @@ export const loginExistedUserValidator = async (
 export const registerSchemaValidator = validate(
   checkSchema(
     {
-      name: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED,
-          bail: true
-        },
-        isString: {
-          bail: true,
-          errorMessage: USERS_MESSAGES.NAME_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: {
-            max: 100,
-            min: 1
-          },
-          bail: true,
-          errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_100
-        },
-        trim: true
-      },
+      name: schemaValidator['name'],
       email: {
         notEmpty: {
           bail: true,
@@ -203,18 +231,9 @@ export const registerSchemaValidator = validate(
         },
         trim: true
       },
-      password: passwordSchema,
-      confirm_password: confirmPasswordSchema,
-      date_of_birth: {
-        isISO8601: {
-          options: {
-            strict: true,
-            strictSeparator: true
-          },
-          errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_MUST_BE_ISO8601,
-          bail: true
-        }
-      }
+      password: schemaValidator['password'],
+      confirm_password: schemaValidator['confirm_password'],
+      date_of_birth: schemaValidator['date_of_birth']
     },
     ['body']
   )
@@ -369,11 +388,11 @@ export const forgotPasswordValidator = validate(
   checkSchema(
     {
       email: {
-        trim: true,
         notEmpty: {
           bail: true,
           errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
         },
+        trim: true,
         isEmail: {
           bail: true,
           errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
@@ -398,7 +417,7 @@ export const forgotPasswordValidator = validate(
 export const verifyForgotPasswordValidator = validate(
   checkSchema(
     {
-      forgot_password_token: forgotPasswordTokenSchema
+      forgot_password_token: schemaValidator['forgot_password_token']
     },
     ['body']
   )
@@ -407,9 +426,9 @@ export const verifyForgotPasswordValidator = validate(
 export const resetPasswordValidator = validate(
   checkSchema(
     {
-      password: passwordSchema,
-      confirm_password: confirmPasswordSchema,
-      forgot_password_token: forgotPasswordTokenSchema
+      password: schemaValidator['password'],
+      confirm_password: schemaValidator['confirm_password'],
+      forgot_password_token: schemaValidator['forgot_password_token']
     },
     ['body']
   )
@@ -429,3 +448,85 @@ export const verifiedUserValidator = (req: Request, res: Response, next: NextFun
 
   next()
 }
+
+export const updateMeValidator = validate(
+  checkSchema(
+    {
+      name: {
+        ...schemaValidator['name'],
+        optional: true
+      },
+      date_of_birth: {
+        ...schemaValidator['date_of_birth'],
+        optional: true
+      },
+      bio: {
+        optional: true,
+        isString: {
+          bail: true,
+          errorMessage: USERS_MESSAGES.BIO_MUST_BE_A_STRING
+        },
+        trim: true,
+        isLength: {
+          options: {
+            max: 200,
+            min: 1
+          },
+          bail: true,
+          errorMessage: USERS_MESSAGES.BIO_LENGTH_MUST_BE_FROM_1_TO_200
+        }
+      },
+      location: {
+        optional: true,
+        isString: {
+          bail: true,
+          errorMessage: USERS_MESSAGES.LOCATION_MUST_BE_A_STRING
+        },
+        trim: true,
+        isLength: {
+          options: {
+            max: 200,
+            min: 1
+          },
+          bail: true,
+          errorMessage: USERS_MESSAGES.LOCATION_LENGTH_MUST_BE_FROM_1_TO_200
+        }
+      },
+      website: {
+        optional: true,
+        isString: {
+          bail: true,
+          errorMessage: USERS_MESSAGES.WEBSITE_MUST_BE_A_STRING
+        },
+        trim: true,
+        isLength: {
+          options: {
+            max: 200,
+            min: 1
+          },
+          bail: true,
+          errorMessage: USERS_MESSAGES.WEBSITE_LENGTH_MUST_BE_FROM_1_TO_200
+        }
+      },
+      username: {
+        optional: true,
+        isString: {
+          bail: true,
+          errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_A_STRING
+        },
+        trim: true,
+        isLength: {
+          options: {
+            max: 50,
+            min: 1
+          },
+          bail: true,
+          errorMessage: USERS_MESSAGES.USERNAME_LENGTH_MUST_BE_FROM_1_TO_50
+        }
+      },
+      avatar: schemaValidator['image'],
+      cover_photo: schemaValidator['image']
+    },
+    ['body']
+  )
+)
