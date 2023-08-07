@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import pick from 'lodash/pick'
 import { ObjectId, WithId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enum'
 import HTTP_STATUS_CODE from '~/constants/httpStatusCode'
@@ -163,6 +164,7 @@ export const getMeController = async (req: Request, res: Response) => {
 
 export const updateMeController = async (req: Request<object, object, UpdateMeRequestBody>, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
+
   const data = await usersService.updateMe({ payload: req.body, user_id })
 
   return res.json({
