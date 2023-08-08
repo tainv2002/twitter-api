@@ -14,6 +14,7 @@ import capitalize from 'lodash/capitalize'
 import { config } from 'dotenv'
 import { ObjectId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enum'
+import { REGEX_USERNAME } from '~/constants/regex'
 config()
 
 const schemaValidator: Record<string, ParamSchema> = {
@@ -542,6 +543,19 @@ export const updateMeValidator = validate(
           },
           bail: true,
           errorMessage: USERS_MESSAGES.USERNAME_LENGTH_MUST_BE_FROM_1_TO_50
+        },
+        custom: {
+          options: async (value: string) => {
+            if (!REGEX_USERNAME.test(value)) {
+              throw new Error(USERS_MESSAGES.USERNAME_IS_INVALID)
+            }
+
+            const user = await databaseService.users.findOne({ username: value })
+
+            if (user) {
+              throw new Error(USERS_MESSAGES.USERNAME_ALREADY_EXISTED)
+            }
+          }
         }
       },
       avatar: schemaValidator['image'],
