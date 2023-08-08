@@ -11,6 +11,7 @@ import { Secret, SignOptions } from 'jsonwebtoken'
 import { ErrorWithStatus } from '~/models/Errors'
 import { USERS_MESSAGES } from '~/constants/messages'
 import HTTP_STATUS_CODE from '~/constants/httpStatusCode'
+import Follower from '~/models/schemas/Follower.schema'
 config()
 
 class UsersService {
@@ -111,7 +112,10 @@ class UsersService {
 
     console.log('email_verify_token: ', email_verify_token)
 
-    return { access_token, refresh_token }
+    return {
+      message: USERS_MESSAGES.REGISTER_SUCCESSFUL,
+      data: { access_token, refresh_token }
+    }
   }
 
   async checkEmailExist(email: string) {
@@ -129,11 +133,18 @@ class UsersService {
       new RefreshToken({ token: refresh_token, user_id: new ObjectId(user_id) })
     )
 
-    return { access_token, refresh_token }
+    return {
+      message: USERS_MESSAGES.LOGIN_SUCCESSFUL,
+      data: { access_token, refresh_token }
+    }
   }
 
   async logout(refresh_token: string) {
     await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+
+    return {
+      message: USERS_MESSAGES.LOGOUT_SUCCESSFUL
+    }
   }
 
   async refreshToken({ refresh_token, user_id, exp }: { refresh_token: string; user_id: string; exp: number }) {
@@ -166,7 +177,10 @@ class UsersService {
       ])
     ])
 
-    return { access_token, refresh_token }
+    return {
+      message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESSFULLY,
+      data: { access_token, refresh_token }
+    }
   }
 
   async resendVerifyEmail(user_id: string) {
@@ -186,7 +200,9 @@ class UsersService {
 
     console.log('Resend email verify token: ', email_verify_token)
 
-    return email_verify_token
+    return {
+      message: USERS_MESSAGES.RESEND_VERIFICATION_EMAIL_SUCCESSFULLY
+    }
   }
 
   async forgotPassword({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
@@ -207,7 +223,9 @@ class UsersService {
     // Gửi kèm đường link đến email người dùng: https://twitter.com/forgot-password?token={forgot_password_token}
     console.log('Send forgot password token: ', forgot_password_token)
 
-    return forgot_password_token
+    return {
+      message: USERS_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD
+    }
   }
 
   async resetPassword({ user_id, password }: { user_id: string; password: string }) {
@@ -225,10 +243,14 @@ class UsersService {
         }
       }
     )
+
+    return {
+      message: USERS_MESSAGES.RESET_PASSWORD_SUCCESSFULLY
+    }
   }
 
   async getMe(user_id: string) {
-    const result = await databaseService.users.findOne(
+    const user = await databaseService.users.findOne(
       { _id: new ObjectId(user_id) },
       {
         projection: {
@@ -238,7 +260,10 @@ class UsersService {
         }
       }
     )
-    return result
+    return {
+      message: USERS_MESSAGES.GET_ME_SUCCESSFULLY,
+      data: user
+    }
   }
 
   async updateMe({ payload, user_id }: { payload: UpdateMeRequestBody; user_id: string }) {
@@ -262,7 +287,10 @@ class UsersService {
       }
     )
 
-    return user.value
+    return {
+      message: USERS_MESSAGES.UPDATE_ME_SUCCESSFULLY,
+      data: user.value
+    }
   }
 
   async getProfile(username: string) {
@@ -286,7 +314,31 @@ class UsersService {
         status: HTTP_STATUS_CODE.NOT_FOUND
       })
     }
-    return user
+    return {
+      message: USERS_MESSAGES.GET_PROFILE_SUCCESSFULLY,
+      data: user
+    }
+  }
+
+  async follow({ user_id, followed_user_id }: { user_id: string; followed_user_id: string }) {
+    const follower = await databaseService.followers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+
+    if (follower) {
+      return {
+        message: USERS_MESSAGES.FOLLOWED
+      }
+    }
+
+    await databaseService.followers.insertOne(
+      new Follower({ user_id: new ObjectId(user_id), followed_user_id: new ObjectId(followed_user_id) })
+    )
+
+    return {
+      message: USERS_MESSAGES.FOLLOW_AN_USER_SUCCESSFULLY
+    }
   }
 }
 
