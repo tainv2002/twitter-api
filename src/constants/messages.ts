@@ -53,6 +53,8 @@ export const USERS_MESSAGES = {
   IMAGE_URL_LENGTH_MUST_BE_FROM_1_TO_200: 'Image url length must be from 1 to 200',
   GET_PROFILE_SUCCESSFULLY: 'Get profile successfully',
   FOLLOW_AN_USER_SUCCESSFULLY: 'Follow an user successfully',
-  FOLLOWED: 'Followed',
-  INVALID_FOLLOWED_USER_ID: 'Invalid followed user id'
+  ALREADY_FOLLOWED: 'Already followed',
+  ALREADY_UNALREADY_FOLLOWED: 'Already unfollowed',
+  UNFOLLOW_AN_USER_SUCCESSFULLY: 'Unfollow an user successfully',
+  INVALID_USER_ID: 'Invalid user id'
 } as const

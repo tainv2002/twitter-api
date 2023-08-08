@@ -172,6 +172,26 @@ const schemaValidator: Record<string, ParamSchema> = {
       bail: true,
       errorMessage: USERS_MESSAGES.IMAGE_URL_LENGTH_MUST_BE_FROM_1_TO_200
     }
+  },
+  user_id: {
+    custom: {
+      options: async (value: string) => {
+        if (!ObjectId.isValid(value)) {
+          throw new ErrorWithStatus({
+            message: USERS_MESSAGES.INVALID_USER_ID,
+            status: HTTP_STATUS_CODE.NOT_FOUND
+          })
+        }
+
+        const user = await databaseService.users.findOne({ _id: new ObjectId(value) })
+        if (!user) {
+          throw new ErrorWithStatus({
+            message: USERS_MESSAGES.USER_NOT_FOUND,
+            status: HTTP_STATUS_CODE.NOT_FOUND
+          })
+        }
+      }
+    }
   }
 }
 
@@ -534,27 +554,17 @@ export const updateMeValidator = validate(
 export const followValidator = validate(
   checkSchema(
     {
-      followed_user_id: {
-        custom: {
-          options: async (value: string) => {
-            if (!ObjectId.isValid(value)) {
-              throw new ErrorWithStatus({
-                message: USERS_MESSAGES.INVALID_FOLLOWED_USER_ID,
-                status: HTTP_STATUS_CODE.NOT_FOUND
-              })
-            }
-
-            const user = await databaseService.users.findOne({ _id: new ObjectId(value) })
-            if (!user) {
-              throw new ErrorWithStatus({
-                message: USERS_MESSAGES.USER_NOT_FOUND,
-                status: HTTP_STATUS_CODE.NOT_FOUND
-              })
-            }
-          }
-        }
-      }
+      followed_user_id: schemaValidator['user_id']
     },
     ['body']
+  )
+)
+
+export const unfollowValidator = validate(
+  checkSchema(
+    {
+      user_id: schemaValidator['user_id']
+    },
+    ['params']
   )
 )
