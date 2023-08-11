@@ -1,25 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
-import formidable from 'formidable'
-import path from 'path'
+import { handleUploadSingleImage } from '~/utils/file'
 
-export const uploadSingleImageController = (req: Request, res: Response, next: NextFunction) => {
-  const form = formidable({
-    uploadDir: path.resolve('uploads'),
-    maxFiles: 1,
-    maxFileSize: 800 * 1024, // 800KB
-    keepExtensions: true
-  })
+export const uploadSingleImageController = async (req: Request, res: Response, next: NextFunction) => {
+  const data = await handleUploadSingleImage(req, res)
 
-  form.parse(req, (err, fields, files) => {
-    if (err) {
-      return next(err)
-    }
-    return res.json({
-      message: 'Upload image successfully',
-      data: {
-        fields,
-        files
-      }
-    })
+  return res.json({
+    data
   })
 }
