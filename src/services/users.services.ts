@@ -1,3 +1,4 @@
+import axios from 'axios'
 import User from '~/models/schemas/User.schema'
 import databaseService from './database.services'
 import { RegisterRequestBody, UpdateMeRequestBody } from '~/models/requests/User.requests'
@@ -176,6 +177,10 @@ class UsersService {
         }
       ])
     ])
+
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ token: refresh_token, user_id: new ObjectId(user_id) })
+    )
 
     return {
       message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESSFULLY,
@@ -371,6 +376,95 @@ class UsersService {
 
     return {
       message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESSFULLY
+    }
+  }
+
+  private async getOAuthGoogleToken(code: string) {
+    const body = {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      grant_type: 'authorization_code'
+    }
+
+    const { data } = await axios.post<{ access_token: string; id_token: string }>(
+      'https://oauth2.googleapis.com/token',
+      body,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }
+    )
+
+    console.log('getOAuthGoogleToken: ', data)
+
+    return data
+  }
+
+  private async getGoogleUserInfo({ access_token, id_token }: { access_token: string; id_token: string }) {
+    const { data } = await axios.get<{
+      id: string
+      email: string
+      verified_email: boolean
+      name: string
+      given_name: string
+      family_name: string
+      picture: string
+      locale: string
+    }>('https://www.googleapis.com/oauth2/v1/userinfo', {
+      params: { access_token, alt: 'json' },
+      headers: { Authorization: 'Bearer ' + id_token }
+    })
+
+    return data
+  }
+
+  async oauth(code: string) {
+    const { id_token, access_token } = await this.getOAuthGoogleToken(code)
+    const userInfo = await this.getGoogleUserInfo({ id_token, access_token })
+    if (!userInfo.verified_email) {
+      throw new ErrorWithStatus({
+        status: HTTP_STATUS_CODE.BAD_REQUEST,
+        message: USERS_MESSAGES.GMAIL_NOT_VERIFIED
+      })
+    }
+
+    const user = await databaseService.users.findOne({ email: userInfo.email })
+    // Nếu tồn tại thì cho login vào
+    if (user) {
+      const { access_token, refresh_token } = await this.signAccessAndRefreshToken({
+        user_id: user._id.toString(),
+        verify: user.verify
+      })
+
+      await databaseService.refreshTokens.insertOne(new RefreshToken({ token: refresh_token, user_id: user._id }))
+
+      return {
+        message: USERS_MESSAGES.LOGIN_SUCCESSFUL,
+        data: {
+          access_token,
+          refresh_token,
+          new_user: 0,
+          verify: user.verify
+        }
+      }
+    } else {
+      const password = hashPassword(`${userInfo.id}${userInfo.email}`)
+
+      const { data } = await this.register({
+        email: userInfo.email,
+        name: userInfo.name,
+        password,
+        confirm_password: password,
+        date_of_birth: new Date().toISOString()
+      })
+
+      return {
+        message: USERS_MESSAGES.REGISTER_SUCCESSFUL,
+        data: { ...data, new_user: 1, verify: UserVerifyStatus.Unverified }
+      }
     }
   }
 }

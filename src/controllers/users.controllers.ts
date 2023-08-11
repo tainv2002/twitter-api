@@ -22,6 +22,8 @@ import {
 import User from '~/models/schemas/User.schema'
 import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
+import { config } from 'dotenv'
+config()
 
 export const loginController = async (req: Request<object, object, LoginRequestBody>, res: Response) => {
   const { user } = req
@@ -30,6 +32,18 @@ export const loginController = async (req: Request<object, object, LoginRequestB
   const result = await usersService.login({ user_id: user_id.toString(), verify })
 
   return res.json(result)
+}
+
+export const oauthController = async (req: Request, res: Response) => {
+  const { code } = req.query
+
+  const { data } = await usersService.oauth(code as string)
+
+  const urlRedirect = `${process.env.CLIENT_REDIRECT_CALLBACK}?access_token=${data.access_token}&refresh_token=${data.refresh_token}&new_user=${data.new_user}&verify=${data.verify}`
+
+  return res.redirect(urlRedirect)
+
+  // return res.json(result)
 }
 
 export const registerController = async (req: Request<object, object, RegisterRequestBody>, res: Response) => {

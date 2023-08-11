@@ -31,13 +31,15 @@ import {
   getProfileController,
   followController,
   unfollowController,
-  changePasswordController
+  changePasswordController,
+  oauthController
 } from '~/controllers/users.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 import { filterMiddleware } from '~/middlewares/common.middlewares'
 import { UpdateMeRequestBody } from '~/models/requests/User.requests'
 
 const usersRouter = Router()
+
 /**
  * Description: Login a user
  * Path: /login
@@ -45,6 +47,14 @@ const usersRouter = Router()
  * Body: { email: string, password: string }
  */
 usersRouter.post('/login', loginSchemaValidator, loginExistedUserValidator, wrapRequestHandler(loginController))
+
+/**
+ * Description: Login a user
+ * Path: /login
+ * Method: POST
+ * Body: { email: string, password: string }
+ */
+usersRouter.get('/oauth/google', wrapRequestHandler(oauthController))
 
 /**
  * Description: Register a new user
