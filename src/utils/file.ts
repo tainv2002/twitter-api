@@ -12,11 +12,12 @@ export const initFolders = () => {
   }
 }
 
-export const handleUploadSingleImage = (req: Request) => {
+export const handleUploadImage = (req: Request) => {
   const form = formidable({
     uploadDir: UPLOAD_TEMP_DIR,
-    maxFiles: 1,
-    maxFileSize: 3000 * 1024, // 3000MB
+    maxFiles: 4,
+    maxFileSize: 800 * 1024, // 800KB
+    maxTotalFileSize: 800 * 1024 * 4,
     keepExtensions: true,
     filter: ({ name, originalFilename, mimetype }) => {
       // return Boolean(mimetype && mimetype.includes('image'))
@@ -30,7 +31,7 @@ export const handleUploadSingleImage = (req: Request) => {
     }
   })
 
-  return new Promise<File>((resolve, reject) => {
+  return new Promise<File[]>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
         return reject(err)
@@ -41,7 +42,7 @@ export const handleUploadSingleImage = (req: Request) => {
         return reject(new Error('File is empty'))
       }
 
-      return resolve(files.image[0])
+      return resolve(files.image)
     })
   })
 }
