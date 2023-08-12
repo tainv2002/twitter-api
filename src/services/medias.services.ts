@@ -16,8 +16,8 @@ class MediasService {
     await sharp(file.filepath).jpeg().toFile(newPath)
     fs.unlinkSync(file.filepath)
     return isProduction
-      ? `${process.env.HOST}/medias/${newName}`
-      : `http://localhost:${process.env.PORT}/medias/${newName}`
+      ? `${process.env.HOST}/static/image/${newName}`
+      : `http://localhost:${process.env.PORT}/static/image/${newName}`
   }
 }
 
