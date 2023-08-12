@@ -3,10 +3,12 @@ import databaseService from './services/database.services'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
 import routes from './routes'
 import { initFolders } from './utils/file'
+import { config } from 'dotenv'
+config()
 databaseService.connect().catch(console.dir)
 
 const app = express()
-const port = 4000
+const port = process.env.PORT || 4001
 
 // Tạo folders
 initFolders()
