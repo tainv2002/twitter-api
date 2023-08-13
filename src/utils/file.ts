@@ -56,16 +56,13 @@ export const handleUploadVideo = (req: Request) => {
     maxFileSize: 50 * 1024 * 1024, // 50MB
     // keepExtensions: true,
     filter: ({ name, originalFilename, mimetype }) => {
-      console.log({ name, originalFilename, mimetype })
+      const valid = name === 'video' && Boolean(mimetype?.includes('mp4') || mimetype?.includes('quicktime'))
 
-      // const valid = name === 'video' && Boolean(mimetype?.includes('video'))
+      if (!valid) {
+        form.emit('error' as any, new Error('File type is not valid') as any)
+      }
 
-      // if (!valid) {
-      //   form.emit('error' as any, new Error('File type is not valid') as any)
-      // }
-
-      // return valid
-      return true
+      return valid
     }
   })
 
