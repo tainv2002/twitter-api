@@ -4,6 +4,7 @@ import { defaultErrorHandler } from './middlewares/error.middlewares'
 import routes from './routes'
 import { initFolders } from './utils/file'
 import { config } from 'dotenv'
+import { UPLOAD_VIDEO_DIR } from './constants/dir'
 config()
 databaseService.connect().catch(console.dir)
 
@@ -16,6 +17,8 @@ initFolders()
 app.use(express.json())
 
 routes(app)
+
+app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 
 app.get('/', (req, res) => {
   res.send('Hello World!')

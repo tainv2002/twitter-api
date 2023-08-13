@@ -1,12 +1,20 @@
 import { Request, Response } from 'express'
 import path from 'path'
-import { UPLOAD_DIR } from '~/constants/dir'
-import HTTP_STATUS_CODE from '~/constants/httpStatusCode'
+import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
 import { USERS_MESSAGES } from '~/constants/messages'
 import mediasService from '~/services/medias.services'
 
 export const uploadImageController = async (req: Request, res: Response) => {
-  const urls = await mediasService.handleUploadImage(req)
+  const urls = await mediasService.uploadImage(req)
+
+  return res.json({
+    message: USERS_MESSAGES.UPLOAD_SUCCESSFULLY,
+    data: urls
+  })
+}
+
+export const uploadVideoController = async (req: Request, res: Response) => {
+  const urls = await mediasService.uploadVideo(req)
 
   return res.json({
     message: USERS_MESSAGES.UPLOAD_SUCCESSFULLY,
@@ -17,9 +25,19 @@ export const uploadImageController = async (req: Request, res: Response) => {
 export const serveImageController = (req: Request, res: Response) => {
   const { name } = req.params
 
-  return res.sendFile(path.resolve(UPLOAD_DIR, name), (err) => {
+  return res.sendFile(path.resolve(UPLOAD_IMAGE_DIR, name), (err) => {
     if (err) {
-      res.status((err as any).status).send('Not found')
+      return res.status((err as any).status).send('Not found')
+    }
+  })
+}
+
+export const serveVideoController = (req: Request, res: Response) => {
+  const { name } = req.params
+
+  return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, name), (err) => {
+    if (err) {
+      return res.status((err as any).status).send('Not found')
     }
   })
 }
