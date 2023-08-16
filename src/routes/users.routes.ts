@@ -82,15 +82,9 @@ usersRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapReq
  * Description: Refresh a token
  * Path: /refresh-token
  * Method: POST
- * Header: { Authorization: Bearer <access_token> }
  * Body: { refresh_token: string }
  */
-usersRouter.post(
-  '/refresh-token',
-  accessTokenValidator,
-  refreshTokenValidator,
-  wrapRequestHandler(refreshTokenController)
-)
+usersRouter.post('/refresh-token', refreshTokenValidator, wrapRequestHandler(refreshTokenController))
 
 /**
  * Description: Verify email when user client click on the link in email
