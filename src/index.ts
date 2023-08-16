@@ -5,6 +5,7 @@ import routes from './routes'
 import { initFolders } from './utils/file'
 import { config } from 'dotenv'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
+import cors from 'cors'
 config()
 databaseService.connect().catch(console.dir)
 
@@ -13,7 +14,7 @@ const port = process.env.PORT || 4001
 
 // Tạo folders
 initFolders()
-
+app.use(cors())
 app.use(express.json())
 
 routes(app)

@@ -1,5 +1,10 @@
 import { Router } from 'express'
-import { serveImageController, serveVideoStreamController } from '~/controllers/medias.controllers'
+import {
+  serveImageController,
+  serveVideoStreamController,
+  serveVideoM3u8Controller,
+  serveSegmentController
+} from '~/controllers/medias.controllers'
 
 const staticRouter = Router()
 
@@ -16,5 +21,19 @@ staticRouter.get('/image/:name', serveImageController)
  * Method: GET
  */
 staticRouter.get('/video-stream/:name', serveVideoStreamController)
+
+/**
+ * Description: Get a video HLS
+ * Path: /video-hls/:id
+ * Method: GET
+ */
+staticRouter.get('/video-hls/:id/master.m3u8', serveVideoM3u8Controller)
+
+/**
+ * Description: Get a video HLS
+ * Path: /video-hls/:id
+ * Method: GET
+ */
+staticRouter.get('/video-hls/:id/:v/:segment', serveSegmentController)
 
 export default staticRouter
