@@ -98,7 +98,7 @@ export const handleUploadVideo = async (req: Request) => {
   })
 }
 
-export const getBaseName = (filename: string) => {
+export const getNameFromBaseName = (filename: string) => {
   return path.basename(filename, path.extname(filename))
 }
 

@@ -11,7 +11,7 @@ export const uploadImageController = async (req: Request, res: Response) => {
   const urls = await mediasService.uploadImage(req)
 
   return res.json({
-    message: USERS_MESSAGES.UPLOAD_SUCCESSFULLY,
+    message: USERS_MESSAGES.UPLOAD_IMAGE_SUCCESSFULLY,
     data: urls
   })
 }
@@ -20,7 +20,7 @@ export const uploadVideoController = async (req: Request, res: Response) => {
   const urls = await mediasService.uploadVideo(req)
 
   return res.json({
-    message: USERS_MESSAGES.UPLOAD_SUCCESSFULLY,
+    message: USERS_MESSAGES.UPLOAD_VIDEO_SUCCESSFULLY,
     data: urls
   })
 }
@@ -29,7 +29,7 @@ export const uploadVideoHLSController = async (req: Request, res: Response) => {
   const urls = await mediasService.uploadVideoHLS(req)
 
   return res.json({
-    message: USERS_MESSAGES.UPLOAD_SUCCESSFULLY,
+    message: USERS_MESSAGES.UPLOAD_VIDEO_SUCCESSFULLY,
     data: urls
   })
 }
@@ -97,5 +97,15 @@ export const serveSegmentController = (req: Request, res: Response) => {
     if (err) {
       return res.status((err as any).status).send('Not found')
     }
+  })
+}
+
+export const getVideoStatusController = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  const data = await mediasService.getVideoStatus(id)
+  return res.json({
+    message: USERS_MESSAGES.ACCESS_TOKEN_IS_INVALID,
+    data
   })
 }
