@@ -7,7 +7,13 @@ import { config } from 'dotenv'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
 import cors from 'cors'
 config()
-databaseService.connect().catch(console.dir)
+databaseService
+  .connect()
+  .catch(console.dir)
+  .then(() => {
+    return databaseService.indexUsers()
+  })
+  .catch(console.error)
 
 const app = express()
 const port = process.env.PORT || 4001

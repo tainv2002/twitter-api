@@ -218,10 +218,10 @@ export const loginExistedUserValidator = async (
   next: NextFunction
 ) => {
   const { email, password } = req.body
-  const user = await databaseService.users.findOne({ email })
   const hashedPassword = hashPassword(password)
+  const user = await databaseService.users.findOne({ email, password: hashedPassword })
 
-  if (!user || user.password !== hashedPassword) {
+  if (!user) {
     return next(
       new EntityError({
         errors: {
