@@ -6,14 +6,17 @@ import { initFolders } from './utils/file'
 import { config } from 'dotenv'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
 import cors from 'cors'
+
 config()
 databaseService
   .connect()
-  .catch(console.dir)
   .then(() => {
-    return databaseService.indexUsers()
+    databaseService.indexUsers()
+    databaseService.indexRefreshTokens()
+    databaseService.indexVideoStatus()
+    databaseService.indexFollowers()
   })
-  .catch(console.error)
+  .catch(console.dir)
 
 const app = express()
 const port = process.env.PORT || 4001

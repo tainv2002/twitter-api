@@ -35,10 +35,49 @@ class DatabaseService {
     }
   }
 
-  indexUsers() {
-    this.users.createIndex({ email: 1, password: 1 })
-    this.users.createIndex({ email: 1 }, { unique: true })
-    this.users.createIndex({ username: 1 }, { unique: true })
+  async indexUsers() {
+    const EMAIL_PASSWORD_INDEX_NAME = 'email_1_password_1'
+    const EMAIL_INDEX_NAME = 'email_1'
+    const USERNAME_INDEX_NAME = 'username_1'
+
+    const isExisted = await this.users.indexExists([EMAIL_PASSWORD_INDEX_NAME, EMAIL_INDEX_NAME, USERNAME_INDEX_NAME])
+
+    if (!isExisted) {
+      this.users.createIndex({ email: 1, password: 1 }, { name: EMAIL_PASSWORD_INDEX_NAME })
+      this.users.createIndex({ email: 1 }, { unique: true, name: EMAIL_INDEX_NAME })
+      this.users.createIndex({ username: 1 }, { unique: true, name: USERNAME_INDEX_NAME })
+    }
+  }
+
+  async indexRefreshTokens() {
+    const TOKEN_INDEX_NAME = 'token_1'
+    const EXP_INDEX_NAME = 'exp_1'
+
+    const isExisted = await this.refreshTokens.indexExists([TOKEN_INDEX_NAME, EXP_INDEX_NAME])
+
+    if (!isExisted) {
+      this.refreshTokens.createIndex({ token: 1 }, { name: TOKEN_INDEX_NAME })
+      this.refreshTokens.createIndex({ exp: 1 }, { expireAfterSeconds: 0, name: EXP_INDEX_NAME })
+    }
+  }
+
+  async indexVideoStatus() {
+    const NAME_INDEX_NAME = 'name_1'
+
+    const isExisted = await this.refreshTokens.indexExists([NAME_INDEX_NAME])
+
+    if (!isExisted) {
+      this.videoStatus.createIndex({ name: 1 }, { name: NAME_INDEX_NAME })
+    }
+  }
+
+  async indexFollowers() {
+    const USER_ID_FOLLOWED_USER_ID_INDEX_NAME = 'user_id_1_followed_user_id_1'
+
+    const isExisted = await this.refreshTokens.indexExists([USER_ID_FOLLOWED_USER_ID_INDEX_NAME])
+    if (!isExisted) {
+      this.followers.createIndex({ user_id: 1, followed_user_id: 1 }, { name: USER_ID_FOLLOWED_USER_ID_INDEX_NAME })
+    }
   }
 
   get users(): Collection<User> {
