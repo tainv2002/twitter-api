@@ -1,4 +1,4 @@
-import { AudienceType, TweetType } from '~/constants/enum'
+import { TweetAudience, TweetType } from '~/constants/enum'
 import { Media } from '../Others'
 import { ObjectId } from 'mongodb'
 
@@ -6,7 +6,7 @@ interface TweetContructor {
   _id?: ObjectId
   user_id: ObjectId
   type: TweetType
-  audience: AudienceType
+  audience: TweetAudience
   content: string
   parent_id: null | ObjectId
   hashtags: ObjectId[]
@@ -22,7 +22,7 @@ export default class Tweet {
   _id?: ObjectId
   user_id: ObjectId
   type: TweetType
-  audience: AudienceType
+  audience: TweetAudience
   content: string
   parent_id: null | ObjectId
   hashtags: ObjectId[]

@@ -27,10 +27,11 @@ export enum EncodingStatus {
 export enum TweetType {
   Tweet,
   Retweet,
-  Comment
+  Comment,
+  QuoteTweet
 }
 
-export enum AudienceType {
+export enum TweetAudience {
   Everyone,
   TwitterCircle
 }
