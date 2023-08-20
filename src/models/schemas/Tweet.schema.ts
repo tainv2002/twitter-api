@@ -1,6 +1,7 @@
 import { TweetAudience, TweetType } from '~/constants/enum'
 import { Media } from '../Others'
 import { ObjectId } from 'mongodb'
+import { stringArrayToObjectIdArray } from '~/utils/common'
 
 interface TweetContructor {
   _id?: ObjectId
@@ -8,14 +9,14 @@ interface TweetContructor {
   type: TweetType
   audience: TweetAudience
   content: string
-  parent_id: null | ObjectId
-  hashtags: ObjectId[]
-  mentions: ObjectId[]
+  parent_id: null | string
+  hashtags: string[]
+  mentions: string[]
   medias: Media[]
-  guest_views: number
-  user_views: number
-  created_at: Date
-  updated_at: Date
+  guest_views?: number
+  user_views?: number
+  created_at?: Date
+  updated_at?: Date
 }
 
 export default class Tweet {
@@ -28,8 +29,8 @@ export default class Tweet {
   hashtags: ObjectId[]
   mentions: ObjectId[]
   medias: Media[]
-  guest_views: number
-  user_views: number
+  guest_views?: number
+  user_views?: number
   created_at?: Date
   updated_at?: Date
 
@@ -52,14 +53,14 @@ export default class Tweet {
     this._id = _id || new ObjectId()
     this.audience = audience
     this.content = content
-    this.guest_views = guest_views
-    this.user_views = user_views
-    this.hashtags = hashtags
-    this.mentions = mentions
+    this.guest_views = guest_views || 0
+    this.user_views = user_views || 0
+    this.hashtags = stringArrayToObjectIdArray(hashtags)
+    this.mentions = stringArrayToObjectIdArray(mentions)
     this.medias = medias
-    this.parent_id = parent_id
+    this.parent_id = parent_id ? new ObjectId(parent_id) : null
     this.type = type
-    this.user_id = user_id
+    this.user_id = new ObjectId(user_id)
     this.created_at = created_at || date
     this.updated_at = updated_at || date
   }
