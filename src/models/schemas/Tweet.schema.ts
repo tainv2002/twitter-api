@@ -10,7 +10,7 @@ interface TweetContructor {
   audience: TweetAudience
   content: string
   parent_id: null | string
-  hashtags: string[]
+  hashtags: ObjectId[]
   mentions: string[]
   medias: Media[]
   guest_views?: number
@@ -55,7 +55,7 @@ export default class Tweet {
     this.content = content
     this.guest_views = guest_views || 0
     this.user_views = user_views || 0
-    this.hashtags = stringArrayToObjectIdArray(hashtags)
+    this.hashtags = hashtags
     this.mentions = stringArrayToObjectIdArray(mentions)
     this.medias = medias
     this.parent_id = parent_id ? new ObjectId(parent_id) : null
