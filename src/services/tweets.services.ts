@@ -3,6 +3,7 @@ import databaseService from './database.services'
 import Tweet from '~/models/schemas/Tweet.schema'
 import { ObjectId, WithId } from 'mongodb'
 import Hashtag from '~/models/schemas/HashTag.schema'
+import { TWEETS_MESSAGES } from '~/constants/messages'
 
 class TweetsService {
   async checkAndCreateHashtag(hashtags: string[]) {
@@ -40,7 +41,10 @@ class TweetsService {
 
     const tweet = await databaseService.tweets.findOne({ _id: result.insertedId })
 
-    return tweet
+    return {
+      message: TWEETS_MESSAGES.CREATE_TWEET_SUCCESSFULLY,
+      data: tweet
+    }
   }
 }
 

@@ -6,7 +6,7 @@ interface VideoStatusType {
   name: string
   status: EncodingStatus
   message?: string
-  createdAt?: Date
+  created_at?: Date
   updatedAt?: Date
 }
 
@@ -15,15 +15,15 @@ export default class VideoStatus {
   name: string
   status: EncodingStatus
   message: string
-  createdAt: Date
+  created_at: Date
   updatedAt: Date
-  constructor({ _id, name, status, message, createdAt, updatedAt }: VideoStatusType) {
+  constructor({ _id, name, status, message, created_at, updatedAt }: VideoStatusType) {
     const date = new Date()
     this._id = _id
     this.name = name
     this.status = status
     this.message = message || ''
-    this.createdAt = createdAt || date
+    this.created_at = created_at || date
     this.updatedAt = updatedAt || date
   }
 }

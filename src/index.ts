@@ -15,6 +15,7 @@ databaseService
     databaseService.indexRefreshTokens()
     databaseService.indexVideoStatus()
     databaseService.indexFollowers()
+    databaseService.indexHashtags()
   })
   .catch(console.dir)
 
