@@ -12,7 +12,7 @@ interface UserType {
   email_verify_token?: string
   forgot_password_token?: string
   verify?: UserVerifyStatus
-
+  twitter_circle?: ObjectId[] // danh sách id những người được add vào cirle
   bio?: string // optional
   location?: string // optional
   website?: string // optional
@@ -32,7 +32,7 @@ export default class User {
   email_verify_token: string
   forgot_password_token: string
   verify: UserVerifyStatus
-
+  twitter_circle: ObjectId[] // danh sách id những người được add vào cirle
   bio: string // optional
   location: string // optional
   website: string // optional
@@ -51,6 +51,7 @@ export default class User {
     this.email_verify_token = user.email_verify_token || ''
     this.forgot_password_token = user.forgot_password_token || ''
     this.verify = user.verify || UserVerifyStatus.Unverified
+    this.twitter_circle = user.twitter_circle || []
     this.avatar = user.avatar || ''
     this.bio = user.bio || ''
     this.location = user.location || ''
