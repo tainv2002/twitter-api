@@ -85,5 +85,8 @@ export const TWEETS_MESSAGES = {
 export const BOOKMARKS_MESSAGE = {
   TWEET_ID_IS_INVALID: 'Tweet ID is invalid',
   TWEET_NOT_FOUND: 'Tweet not found',
-  BOOKMARK_TWEET_SUCCESSFULLY: 'Bookmark tweet successfully'
+  BOOKMARK_ID_IS_INVALID: 'Bookmark ID is invalid',
+  BOOKMARK_NOT_FOUND: 'Bookmark not found',
+  BOOKMARK_TWEET_SUCCESSFULLY: 'Bookmark tweet successfully',
+  UNBOOKMARK_TWEET_SUCCESSFULLY: 'Unbookmark tweet successfully'
 }

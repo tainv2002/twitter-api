@@ -23,6 +23,30 @@ class BookmarksService {
       data: result.value as WithId<Bookmark>
     }
   }
+
+  async unbookmarkTweetByTweetId({ tweet_id, user_id }: { tweet_id: string; user_id: string }) {
+    const tweet_object_id = new ObjectId(tweet_id)
+    const user_object_id = new ObjectId(user_id)
+
+    await databaseService.bookmarks.deleteOne({
+      tweet_id: tweet_object_id,
+      user_id: user_object_id
+    })
+
+    return {
+      message: BOOKMARKS_MESSAGE.UNBOOKMARK_TWEET_SUCCESSFULLY
+    }
+  }
+
+  async unbookmarkTweetById(bookmark_id: string) {
+    await databaseService.bookmarks.deleteOne({
+      _id: new ObjectId(bookmark_id)
+    })
+
+    return {
+      message: BOOKMARKS_MESSAGE.UNBOOKMARK_TWEET_SUCCESSFULLY
+    }
+  }
 }
 
 const bookmarksService = new BookmarksService()
