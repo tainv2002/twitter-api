@@ -1,10 +1,14 @@
+import { NextFunction, Request, Response } from 'express'
 import { checkSchema } from 'express-validator'
 import isEmpty from 'lodash/isEmpty'
-import { ObjectId } from 'mongodb'
-import { MediaType, TweetAudience, TweetType } from '~/constants/enum'
+import { ObjectId, WithId } from 'mongodb'
+import { MediaType, TweetAudience, TweetType, UserVerifyStatus } from '~/constants/enum'
 import HTTP_STATUS_CODE from '~/constants/httpStatusCode'
-import { TWEETS_MESSAGES } from '~/constants/messages'
+import { TWEETS_MESSAGES, USERS_MESSAGES } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Errors'
+import { TokenPayload } from '~/models/requests/User.requests'
+import Tweet from '~/models/schemas/Tweet.schema'
+import User from '~/models/schemas/User.schema'
 import databaseService from '~/services/database.services'
 import { numberEnumToArray } from '~/utils/common'
 import { validate } from '~/utils/validations'
@@ -122,7 +126,7 @@ export const tweetIdValidator = validate(
     {
       tweet_id: {
         custom: {
-          options: async (value) => {
+          options: async (value, { req }) => {
             if (!ObjectId.isValid(value)) {
               throw new ErrorWithStatus({
                 status: HTTP_STATUS_CODE.BAD_REQUEST,
@@ -137,6 +141,8 @@ export const tweetIdValidator = validate(
                 status: HTTP_STATUS_CODE.NOT_FOUND
               })
             }
+
+            ;(req as Request).tweet = tweet
             return true
           }
         }
@@ -145,3 +151,47 @@ export const tweetIdValidator = validate(
     ['body', 'params']
   )
 )
+
+export const audienceValidator = async (req: Request, res: Response, next: NextFunction) => {
+  const tweet = req.tweet as WithId<Tweet>
+
+  if (tweet.audience === TweetAudience.Everyone) {
+    return next()
+  }
+
+  // Kiểm tra người xem tweet này đã đăng nhập hay chưa
+  if (!req.decoded_authorization) {
+    return next(
+      new ErrorWithStatus({
+        status: HTTP_STATUS_CODE.UNAUTHORIZED,
+        message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED
+      })
+    )
+  }
+
+  // Kiểm tra trạng thái tài khoản tác giả
+  const author = await databaseService.users.findOne({ _id: new ObjectId(tweet.user_id) })
+  if (!author || author.verify === UserVerifyStatus.Banned) {
+    return next(
+      new ErrorWithStatus({
+        status: HTTP_STATUS_CODE.NOT_FOUND,
+        message: USERS_MESSAGES.USER_NOT_FOUND
+      })
+    )
+  }
+
+  const { user_id } = req.decoded_authorization as TokenPayload
+  // Kiểm tra người xem tweet có nằm trong twitter circle của tác giả hay không
+
+  const isInTwitterCircle = author.twitter_circle.some((user_circle_id) => user_circle_id.equals(user_id))
+  if (!isInTwitterCircle && !author._id.equals(user_id)) {
+    return next(
+      new ErrorWithStatus({
+        status: HTTP_STATUS_CODE.FORBIDDEN,
+        message: TWEETS_MESSAGES.TWEET_IS_NOT_PUBLIC
+      })
+    )
+  }
+
+  next()
+}
