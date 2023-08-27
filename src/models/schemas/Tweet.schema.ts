@@ -20,7 +20,7 @@ interface TweetContructor {
 }
 
 export default class Tweet {
-  _id?: ObjectId
+  _id: ObjectId
   user_id: ObjectId
   type: TweetType
   audience: TweetAudience
