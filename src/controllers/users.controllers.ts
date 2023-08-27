@@ -14,7 +14,7 @@ import {
   VerifyForgotPasswordRequestBody,
   ResetPasswordRequestBody,
   UpdateMeRequestBody,
-  GetProfileRequestParam,
+  GetProfileRequestParams,
   FollowRequestBody,
   UnfollowRequestParams,
   ChangePasswordRequestBody
@@ -164,7 +164,7 @@ export const updateMeController = async (req: Request<object, object, UpdateMeRe
   return res.json(result)
 }
 
-export const getProfileController = async (req: Request<GetProfileRequestParam>, res: Response) => {
+export const getProfileController = async (req: Request<GetProfileRequestParams>, res: Response) => {
   const { username } = req.params
 
   const result = await usersService.getProfile(username)

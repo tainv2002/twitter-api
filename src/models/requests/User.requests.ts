@@ -60,7 +60,7 @@ export interface UpdateMeRequestBody {
   cover_photo?: string
 }
 
-export interface GetProfileRequestParam extends ParamsDictionary {
+export interface GetProfileRequestParams extends ParamsDictionary {
   username: string
 }
 
