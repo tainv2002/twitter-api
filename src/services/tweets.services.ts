@@ -63,13 +63,15 @@ class TweetsService {
         returnDocument: 'after',
         projection: {
           guest_views: 1,
-          user_views: 1
+          user_views: 1,
+          updated_at: true
         }
       }
     )
     return result.value as WithId<{
       guest_views: number
       user_views: number
+      updated_at: Date
     }>
   }
 
@@ -77,12 +79,14 @@ class TweetsService {
     tweet_id,
     tweet_type,
     page,
-    limit
+    limit,
+    user_id
   }: {
     tweet_id: string
     tweet_type: TweetType
     page: number
     limit: number
+    user_id?: string
   }) {
     const tweets = await databaseService.tweets
       .aggregate<Tweet>([
@@ -184,9 +188,6 @@ class TweetsService {
                   }
                 }
               }
-            },
-            views: {
-              $add: ['$user_views', '$guest_views']
             }
           }
         },
@@ -199,9 +200,35 @@ class TweetsService {
       ])
       .toArray()
 
-    const total = await databaseService.tweets.countDocuments({
-      parent_id: new ObjectId(tweet_id),
-      type: tweet_type
+    const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
+
+    const ids = tweets.map((tweet) => tweet._id)
+    const date = new Date()
+
+    const [, total] = await Promise.all([
+      databaseService.tweets.updateMany(
+        {
+          _id: {
+            $in: ids
+          }
+        },
+        {
+          $inc: inc,
+          $set: {
+            updated_at: date
+          }
+        }
+      ),
+      databaseService.tweets.countDocuments({
+        parent_id: new ObjectId(tweet_id),
+        type: tweet_type
+      })
+    ])
+
+    tweets.forEach((tweet) => {
+      tweet.guest_views += 1
+      tweet.user_views += 1
+      tweet.updated_at = date
     })
 
     return {
