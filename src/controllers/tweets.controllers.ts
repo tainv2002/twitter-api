@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { TweetType } from '~/constants/enum'
+import { TweetType } from '~/constants/enums'
 import { TWEETS_MESSAGES } from '~/constants/messages'
 import {
   GetTweetChildrenRequestParams,

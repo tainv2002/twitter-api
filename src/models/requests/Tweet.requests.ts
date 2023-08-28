@@ -1,4 +1,4 @@
-import { TweetAudience, TweetType } from '~/constants/enum'
+import { TweetAudience, TweetType } from '~/constants/enums'
 import { Media } from '../Others'
 import { ParamsDictionary, Query } from 'express-serve-static-core'
 

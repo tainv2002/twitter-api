@@ -2,9 +2,9 @@ import { TweetRequestBody } from '~/models/requests/Tweet.requests'
 import databaseService from './database.services'
 import Tweet from '~/models/schemas/Tweet.schema'
 import { ObjectId, WithId } from 'mongodb'
-import Hashtag from '~/models/schemas/HashTag.schema'
+import Hashtag from '~/models/schemas/Hashtag.schema'
 import { TWEETS_MESSAGES } from '~/constants/messages'
-import { TweetType } from '~/constants/enum'
+import { TweetType } from '~/constants/enums'
 
 class TweetsService {
   async checkAndCreateHashtag(hashtags: string[]) {

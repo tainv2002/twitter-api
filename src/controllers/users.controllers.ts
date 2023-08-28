@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { ObjectId, WithId } from 'mongodb'
-import { UserVerifyStatus } from '~/constants/enum'
+import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS_CODE from '~/constants/httpStatusCode'
 import { USERS_MESSAGES } from '~/constants/messages'
 import {

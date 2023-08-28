@@ -5,7 +5,7 @@ import { config } from 'dotenv'
 import Follow from '~/models/schemas/Follower.schema'
 import VideoStatus from '~/models/schemas/VideoStatus.Schema'
 import Tweet from '~/models/schemas/Tweet.schema'
-import Hashtag from '~/models/schemas/HashTag.schema'
+import Hashtag from '~/models/schemas/Hashtag.schema'
 import Bookmark from '~/models/schemas/Bookmark.schema'
 import Like from '~/models/schemas/Like.schema'
 config()

@@ -1,4 +1,4 @@
-import { MediaType } from '~/constants/enum'
+import { MediaType } from '~/constants/enums'
 
 export interface Media {
   url: string

@@ -13,7 +13,7 @@ import { JsonWebTokenError, Secret } from 'jsonwebtoken'
 import capitalize from 'lodash/capitalize'
 import { config } from 'dotenv'
 import { ObjectId } from 'mongodb'
-import { UserVerifyStatus } from '~/constants/enum'
+import { UserVerifyStatus } from '~/constants/enums'
 import { REGEX_USERNAME } from '~/constants/regex'
 config()
 
