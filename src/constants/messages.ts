@@ -87,7 +87,8 @@ export const TWEETS_MESSAGES = {
   TWEET_IS_NOT_PUBLIC: 'Tweet is not public',
   INVALID_TWEET_TYPE: 'Invalid tweet type',
   PAGE_MUST_BE_GREATER_THAN_0: 'Page must be greater than 0',
-  LIMIT_MUST_BE_GREATER_THAN_0_AND_LESS_THAN_100: 'Limit must be greater than 0 and less than 100'
+  LIMIT_MUST_BE_GREATER_THAN_0_AND_LESS_THAN_100: 'Limit must be greater than 0 and less than 100',
+  GET_NEW_FEEDS_SUCCESSFULLY: 'Get new feeds successfully'
 }
 
 export const BOOKMARKS_MESSAGE = {

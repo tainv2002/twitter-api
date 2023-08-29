@@ -8,7 +8,6 @@ import { TWEETS_MESSAGES, USERS_MESSAGES } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Errors'
 import { TokenPayload } from '~/models/requests/User.requests'
 import Tweet from '~/models/schemas/Tweet.schema'
-import User from '~/models/schemas/User.schema'
 import databaseService from '~/services/database.services'
 import { numberEnumToArray } from '~/utils/common'
 import { validate } from '~/utils/validations'
@@ -16,6 +15,7 @@ import { validate } from '~/utils/validations'
 const tweetTypes = numberEnumToArray(TweetType)
 const tweetAudiences = numberEnumToArray(TweetAudience)
 const mediaTypes = numberEnumToArray(MediaType)
+
 export const createTweetValidator = validate(
   checkSchema(
     {
@@ -304,19 +304,13 @@ export const audienceValidator = async (req: Request, res: Response, next: NextF
   next()
 }
 
-export const getTweetChildrenValidator = validate(
+export const paginationValidator = validate(
   checkSchema(
     {
-      tweet_type: {
-        isIn: {
-          options: [tweetTypes],
-          errorMessage: TWEETS_MESSAGES.INVALID_TWEET_TYPE
-        }
-      },
       limit: {
         isNumeric: true,
         custom: {
-          options: (value) => {
+          options: (value: any) => {
             const num = Number(value)
             if (num > 100 || num < 0) {
               throw new Error(TWEETS_MESSAGES.LIMIT_MUST_BE_GREATER_THAN_0_AND_LESS_THAN_100)
@@ -328,13 +322,27 @@ export const getTweetChildrenValidator = validate(
       page: {
         isNumeric: true,
         custom: {
-          options: (value) => {
+          options: (value: any) => {
             const num = Number(value)
             if (num < 1) {
               throw new Error(TWEETS_MESSAGES.PAGE_MUST_BE_GREATER_THAN_0)
             }
             return true
           }
+        }
+      }
+    },
+    ['query']
+  )
+)
+
+export const getTweetChildrenValidator = validate(
+  checkSchema(
+    {
+      tweet_type: {
+        isIn: {
+          options: [tweetTypes],
+          errorMessage: TWEETS_MESSAGES.INVALID_TWEET_TYPE
         }
       }
     },
