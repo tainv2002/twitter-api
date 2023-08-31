@@ -44,7 +44,7 @@ export const handleUploadImage = (req: Request) => {
         return reject(new Error('File is empty'))
       }
 
-      return resolve(files.image)
+      return resolve(files.image as File[])
     })
   })
 }
@@ -86,7 +86,7 @@ export const handleUploadVideo = async (req: Request) => {
         return reject(new Error('File is empty'))
       }
 
-      const videos = files.video
+      const videos = files.video as File[]
       videos.forEach((video) => {
         const ext = getExtensionName(video.originalFilename as string)
         fs.renameSync(video.filepath, video.filepath + ext)

@@ -88,8 +88,8 @@ class TweetsService {
     limit: number
     user_id?: string
   }) {
-    const tweets = await databaseService.tweets
-      .aggregate<Tweet>([
+    const result = await databaseService.tweets
+      .aggregate([
         {
           $match: {
             parent_id: new ObjectId(tweet_id),
@@ -97,56 +97,72 @@ class TweetsService {
           }
         },
         {
-          $skip: (page - 1) * limit
+          $facet: {
+            metadata: [
+              {
+                $count: 'totalCount'
+              }
+            ],
+            data: [
+              {
+                $skip: limit * (page - 1)
+              },
+              {
+                $limit: limit
+              }
+            ]
+          }
         },
         {
-          $limit: limit
+          $unwind: {
+            path: '$data'
+          }
         },
         {
           $lookup: {
             from: 'hashtags',
-            localField: 'hashtags',
+            localField: 'data.hashtags',
             foreignField: '_id',
-            as: 'hashtags'
+            as: 'data.hashtags'
           }
         },
         {
           $lookup: {
             from: 'users',
-            localField: 'mentions',
+            localField: 'data.mentions',
             foreignField: '_id',
-            as: 'mentions'
+            as: 'data.mentions'
           }
         },
         {
           $lookup: {
             from: 'bookmarks',
-            localField: '_id',
+            localField: 'data._id',
             foreignField: 'tweet_id',
-            as: 'bookmarks'
+            as: 'data.bookmarks'
           }
         },
         {
           $lookup: {
             from: 'likes',
-            localField: '_id',
+            localField: 'data._id',
             foreignField: 'tweet_id',
-            as: 'likes'
+            as: 'data.likes'
           }
         },
         {
           $lookup: {
             from: 'tweets',
-            localField: '_id',
+            localField: 'data._id',
             foreignField: 'parent_id',
-            as: 'tweet_children'
+            as: 'data.tweet_children'
           }
         },
         {
           $addFields: {
-            mentions: {
+            'data.mentions': {
               $map: {
-                input: '$mentions',
+                input: '$data.mentions',
                 as: 'mention',
                 in: {
                   _id: '$$mention._id',
@@ -156,16 +172,16 @@ class TweetsService {
                 }
               }
             },
-            bookmarks: {
-              $size: '$bookmarks'
+            'data.bookmarks': {
+              $size: '$data.bookmarks'
             },
-            likes: {
-              $size: '$likes'
+            'data.likes': {
+              $size: '$data.likes'
             },
-            retweets_count: {
+            'data.retweets_count': {
               $size: {
                 $filter: {
-                  input: '$tweet_children',
+                  input: '$data.tweet_children',
                   as: 'item',
                   cond: {
                     $eq: ['$$item.type', TweetType.Retweet]
@@ -173,10 +189,10 @@ class TweetsService {
                 }
               }
             },
-            comments_count: {
+            'data.comments_count': {
               $size: {
                 $filter: {
-                  input: '$tweet_children',
+                  input: '$data.tweet_children',
                   as: 'item',
                   cond: {
                     $eq: ['$$item.type', TweetType.Comment]
@@ -184,10 +200,10 @@ class TweetsService {
                 }
               }
             },
-            quotes_count: {
+            'data.quotes_count': {
               $size: {
                 $filter: {
-                  input: '$tweet_children',
+                  input: '$data.tweet_children',
                   as: 'item',
                   cond: {
                     $eq: ['$$item.type', TweetType.QuoteTweet]
@@ -196,9 +212,26 @@ class TweetsService {
               }
             }
           }
+        },
+        {
+          $group: {
+            _id: null,
+            data: {
+              $push: '$data'
+            },
+            metadata: {
+              $first: '$metadata'
+            }
+          }
+        },
+        {
+          $unset: ['_id', 'data.tweet_children']
         }
       ])
       .toArray()
+
+    const tweets = result[0].data as Tweet[]
+    const tweets_count = result[0].metadata[0].totalCount as number
 
     const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
 
@@ -215,29 +248,23 @@ class TweetsService {
       return tweet._id
     })
 
-    const [, total] = await Promise.all([
-      databaseService.tweets.updateMany(
-        {
-          _id: {
-            $in: ids
-          }
-        },
-        {
-          $inc: inc,
-          $set: {
-            updated_at: date
-          }
+    await databaseService.tweets.updateMany(
+      {
+        _id: {
+          $in: ids
         }
-      ),
-      databaseService.tweets.countDocuments({
-        parent_id: new ObjectId(tweet_id),
-        type: tweet_type
-      })
-    ])
+      },
+      {
+        $inc: inc,
+        $set: {
+          updated_at: date
+        }
+      }
+    )
 
     return {
       tweets,
-      total
+      total: tweets_count
     }
   }
 
@@ -261,8 +288,8 @@ class TweetsService {
     const followed_user_ids = followed_users.map((item) => item.followed_user_id)
     followed_user_ids.push(user_object_id)
 
-    const tweets = await databaseService.tweets
-      .aggregate<Tweet>([
+    const result = await databaseService.tweets
+      .aggregate([
         {
           $match: {
             user_id: {
@@ -305,56 +332,72 @@ class TweetsService {
           }
         },
         {
-          $skip: limit * (page - 1)
+          $facet: {
+            data: [
+              {
+                $skip: limit * (page - 1)
+              },
+              {
+                $limit: limit
+              }
+            ],
+            metadata: [
+              {
+                $count: 'totalCount'
+              }
+            ]
+          }
         },
         {
-          $limit: limit
+          $unwind: {
+            path: '$data'
+          }
         },
         {
           $lookup: {
             from: 'hashtags',
-            localField: 'hashtags',
+            localField: 'data.hashtags',
             foreignField: '_id',
-            as: 'hashtags'
+            as: 'data.hashtags'
           }
         },
         {
           $lookup: {
             from: 'users',
-            localField: 'mentions',
+            localField: 'data.mentions',
             foreignField: '_id',
-            as: 'mentions'
+            as: 'data.mentions'
           }
         },
         {
           $lookup: {
             from: 'bookmarks',
-            localField: '_id',
+            localField: 'data._id',
             foreignField: 'tweet_id',
-            as: 'bookmarks'
+            as: 'data.bookmarks'
           }
         },
         {
           $lookup: {
             from: 'likes',
-            localField: '_id',
+            localField: 'data._id',
             foreignField: 'tweet_id',
-            as: 'likes'
+            as: 'data.likes'
           }
         },
         {
           $lookup: {
             from: 'tweets',
-            localField: '_id',
+            localField: 'data._id',
             foreignField: 'parent_id',
-            as: 'tweet_children'
+            as: 'data.tweet_children'
           }
         },
         {
           $addFields: {
-            mentions: {
+            'data.mentions': {
               $map: {
-                input: '$mentions',
+                input: '$data.mentions',
                 as: 'mention',
                 in: {
                   _id: '$$mention._id',
@@ -364,16 +407,16 @@ class TweetsService {
                 }
               }
             },
-            bookmarks: {
-              $size: '$bookmarks'
+            'data.bookmarks': {
+              $size: '$data.bookmarks'
             },
-            likes: {
-              $size: '$likes'
+            'data.likes': {
+              $size: '$data.likes'
             },
-            retweets_count: {
+            'data.retweets_count': {
               $size: {
                 $filter: {
-                  input: '$tweet_children',
+                  input: '$data.tweet_children',
                   as: 'item',
                   cond: {
                     $eq: ['$$item.type', TweetType.Retweet]
@@ -381,10 +424,10 @@ class TweetsService {
                 }
               }
             },
-            comments_count: {
+            'data.comments_count': {
               $size: {
                 $filter: {
-                  input: '$tweet_children',
+                  input: '$data.tweet_children',
                   as: 'item',
                   cond: {
                     $eq: ['$$item.type', TweetType.Comment]
@@ -392,10 +435,10 @@ class TweetsService {
                 }
               }
             },
-            quotes_count: {
+            'data.quotes_count': {
               $size: {
                 $filter: {
-                  input: '$tweet_children',
+                  input: '$data.tweet_children',
                   as: 'item',
                   cond: {
                     $eq: ['$$item.type', TweetType.QuoteTweet]
@@ -407,18 +450,37 @@ class TweetsService {
         },
         {
           $project: {
-            tweet_children: 0,
-            user: {
-              password: 0,
-              email_verify_token: 0,
-              forgot_password_token: 0,
-              twitter_circle: 0,
-              date_of_birth: 0
+            data: {
+              tweet_children: 0,
+              user: {
+                password: 0,
+                email_verify_token: 0,
+                forgot_password_token: 0,
+                twitter_circle: 0,
+                date_of_birth: 0
+              }
             }
           }
+        },
+        {
+          $group: {
+            _id: null,
+            data: {
+              $push: '$data'
+            },
+            metadata: {
+              $first: '$metadata'
+            }
+          }
+        },
+        {
+          $unset: '_id'
         }
       ])
       .toArray()
+
+    const tweets = result[0].data as Tweet[]
+    const tweets_count = result[0].metadata[0].totalCount as number
 
     const tweet_ids = tweets.map((tweet) => {
       tweet.user_views += 1
@@ -426,30 +488,21 @@ class TweetsService {
       return tweet._id
     })
 
-    const [, total] = await Promise.all([
-      databaseService.tweets.updateMany(
-        {
-          _id: {
-            $in: tweet_ids
-          }
-        },
-        {
-          $inc: { user_views: 1 },
-          $set: {
-            updated_at: date
-          }
+    await databaseService.tweets.updateMany(
+      {
+        _id: { $in: tweet_ids }
+      },
+      {
+        $inc: { user_views: 1 },
+        $set: {
+          updated_at: date
         }
-      ),
-      databaseService.tweets.countDocuments({
-        user_id: {
-          $in: followed_user_ids
-        }
-      })
-    ])
+      }
+    )
 
     return {
       tweets,
-      total
+      total: tweets_count
     }
   }
 }

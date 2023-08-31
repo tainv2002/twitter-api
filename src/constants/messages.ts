@@ -97,3 +97,7 @@ export const BOOKMARKS_MESSAGE = {
   BOOKMARK_TWEET_SUCCESSFULLY: 'Bookmark tweet successfully',
   UNBOOKMARK_TWEET_SUCCESSFULLY: 'Unbookmark tweet successfully'
 }
+
+export const SEARCH_MESSAGES = {
+  SEARCH_SUCCESSFULLY: 'Search successfully'
+}

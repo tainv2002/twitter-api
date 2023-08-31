@@ -5,10 +5,10 @@ import {
   GetTweetChildrenRequestParams,
   GetTweetChildrenRequestQuery,
   GetTweetRequestParams,
-  PaginationRequestQuery,
   TweetRequestBody
 } from '~/models/requests/Tweet.requests'
 import { TokenPayload } from '~/models/requests/User.requests'
+import { PaginationRequestQuery } from '~/models/requests/common.requests'
 import tweetsService from '~/services/tweets.services'
 
 export const createTweetController = async (req: Request<any, any, TweetRequestBody>, res: Response) => {

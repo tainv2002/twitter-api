@@ -21,7 +21,7 @@ class DatabaseService {
     this.client = new MongoClient(uri, {
       serverApi: {
         version: ServerApiVersion.v1,
-        strict: true,
+        strict: false,
         deprecationErrors: true
       }
     })
@@ -40,56 +40,65 @@ class DatabaseService {
   }
 
   async indexUsers() {
-    const EMAIL_PASSWORD_INDEX_NAME = 'email_1_password_1'
-    const EMAIL_INDEX_NAME = 'email_1'
-    const USERNAME_INDEX_NAME = 'username_1'
+    const EMAIL_PASSWORD_INDEX = 'email_1_password_1'
+    const EMAIL_INDEX = 'email_1'
+    const USERNAME_INDEX = 'username_1'
 
-    const isExisted = await this.users.indexExists([EMAIL_PASSWORD_INDEX_NAME, EMAIL_INDEX_NAME, USERNAME_INDEX_NAME])
+    const isExisted = await this.users.indexExists([EMAIL_PASSWORD_INDEX, EMAIL_INDEX, USERNAME_INDEX])
 
     if (!isExisted) {
-      this.users.createIndex({ email: 1, password: 1 }, { name: EMAIL_PASSWORD_INDEX_NAME })
-      this.users.createIndex({ email: 1 }, { unique: true, name: EMAIL_INDEX_NAME })
-      this.users.createIndex({ username: 1 }, { unique: true, name: USERNAME_INDEX_NAME })
+      this.users.createIndex({ email: 1, password: 1 }, { name: EMAIL_PASSWORD_INDEX })
+      this.users.createIndex({ email: 1 }, { unique: true, name: EMAIL_INDEX })
+      this.users.createIndex({ username: 1 }, { unique: true, name: USERNAME_INDEX })
     }
   }
 
   async indexRefreshTokens() {
-    const TOKEN_INDEX_NAME = 'token_1'
-    const EXP_INDEX_NAME = 'exp_1'
+    const TOKEN_INDEX = 'token_1'
+    const EXP_INDEX = 'exp_1'
 
-    const isExisted = await this.refreshTokens.indexExists([TOKEN_INDEX_NAME, EXP_INDEX_NAME])
+    const isExisted = await this.refreshTokens.indexExists([TOKEN_INDEX, EXP_INDEX])
 
     if (!isExisted) {
-      this.refreshTokens.createIndex({ token: 1 }, { name: TOKEN_INDEX_NAME })
-      this.refreshTokens.createIndex({ exp: 1 }, { expireAfterSeconds: 0, name: EXP_INDEX_NAME })
+      this.refreshTokens.createIndex({ token: 1 }, { name: TOKEN_INDEX })
+      this.refreshTokens.createIndex({ exp: 1 }, { expireAfterSeconds: 0, name: EXP_INDEX })
     }
   }
 
   async indexVideoStatus() {
-    const NAME_INDEX_NAME = 'name_1'
+    const NAME_INDEX = 'name_1'
 
-    const isExisted = await this.refreshTokens.indexExists([NAME_INDEX_NAME])
+    const isExisted = await this.refreshTokens.indexExists([NAME_INDEX])
 
     if (!isExisted) {
-      this.videoStatus.createIndex({ name: 1 }, { name: NAME_INDEX_NAME })
+      this.videoStatus.createIndex({ name: 1 }, { name: NAME_INDEX })
     }
   }
 
   async indexFollowers() {
-    const USER_ID_FOLLOWED_USER_ID_INDEX_NAME = 'user_id_1_followed_user_id_1'
+    const USER_ID_FOLLOWED_USER_ID_INDEX = 'user_id_1_followed_user_id_1'
 
-    const isExisted = await this.refreshTokens.indexExists([USER_ID_FOLLOWED_USER_ID_INDEX_NAME])
+    const isExisted = await this.refreshTokens.indexExists([USER_ID_FOLLOWED_USER_ID_INDEX])
     if (!isExisted) {
-      this.followers.createIndex({ user_id: 1, followed_user_id: 1 }, { name: USER_ID_FOLLOWED_USER_ID_INDEX_NAME })
+      this.followers.createIndex({ user_id: 1, followed_user_id: 1 }, { name: USER_ID_FOLLOWED_USER_ID_INDEX })
     }
   }
 
   async indexHashtags() {
-    const NAME_INDEX_NAME = 'name_1'
+    const NAME_INDEX = 'name_1'
 
-    const isExisted = await this.hashtags.indexExists([NAME_INDEX_NAME])
+    const isExisted = await this.hashtags.indexExists([NAME_INDEX])
     if (!isExisted) {
-      this.hashtags.createIndex({ name: 1 }, { name: NAME_INDEX_NAME })
+      this.hashtags.createIndex({ name: 1 }, { name: NAME_INDEX })
+    }
+  }
+
+  async indexTweets() {
+    const CONTENT_INDEX = 'content_text'
+    const isExisted = await this.tweets.indexExists([CONTENT_INDEX])
+
+    if (!isExisted) {
+      this.tweets.createIndex({ content: 'text' }, { name: CONTENT_INDEX, default_language: 'none' })
     }
   }
 
