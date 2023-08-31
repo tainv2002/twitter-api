@@ -230,8 +230,8 @@ class TweetsService {
       ])
       .toArray()
 
-    const tweets = result[0].data as Tweet[]
-    const tweets_count = result[0].metadata[0].totalCount as number
+    const tweets = (result?.[0]?.data || []) as Tweet[]
+    const tweets_count = (result?.[0]?.metadata[0].totalCount || 0) as number
 
     const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
 
@@ -479,8 +479,8 @@ class TweetsService {
       ])
       .toArray()
 
-    const tweets = result[0].data as Tweet[]
-    const tweets_count = result[0].metadata[0].totalCount as number
+    const tweets = (result?.[0]?.data || []) as Tweet[]
+    const tweets_count = (result?.[0]?.metadata[0].totalCount || 0) as number
 
     const tweet_ids = tweets.map((tweet) => {
       tweet.user_views += 1
