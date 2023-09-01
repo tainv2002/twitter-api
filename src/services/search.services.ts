@@ -1,21 +1,58 @@
-import { TweetAudience, TweetType } from '~/constants/enums'
+import { MediaType, MediaTypeQuery, PeopleFollowedQuery, TweetAudience, TweetType } from '~/constants/enums'
 import databaseService from './database.services'
 import { ObjectId } from 'mongodb'
 import Tweet from '~/models/schemas/Tweet.schema'
 
 class SearchService {
-  async search({ user_id, content, limit, page }: { user_id: string; content: string; limit: number; page: number }) {
+  async search({
+    user_id,
+    content,
+    limit,
+    page,
+    media_type,
+    people_followed
+  }: {
+    user_id: string
+    content: string
+    limit: number
+    page: number
+    media_type?: MediaTypeQuery
+    people_followed?: PeopleFollowedQuery
+  }) {
     const user_object_id = new ObjectId(user_id)
     const date = new Date()
+
+    const filter: any = {
+      $text: {
+        $search: content
+      }
+    }
+
+    if (media_type) {
+      if (media_type === MediaTypeQuery.Image) {
+        filter['medias.type'] = MediaType.Image
+      } else if (media_type === MediaTypeQuery.Video) {
+        filter['medias.type'] = { $in: [MediaType.Video, MediaType.HLS] }
+      }
+    }
+
+    if (people_followed === PeopleFollowedQuery.On) {
+      const followed_users = await databaseService.followers
+        .find({
+          user_id: user_object_id
+        })
+        .toArray()
+
+      const followed_user_ids = followed_users.map((user) => user.followed_user_id)
+      followed_user_ids.push(user_object_id)
+
+      filter['user_id'] = { $in: followed_user_ids }
+    }
 
     const result = await databaseService.tweets
       .aggregate([
         {
-          $match: {
-            $text: {
-              $search: content
-            }
-          }
+          $match: filter
         },
         {
           $lookup: {
