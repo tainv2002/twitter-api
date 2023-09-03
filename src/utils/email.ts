@@ -1,7 +1,13 @@
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 import { config } from 'dotenv'
+import fs from 'fs'
+import path from 'path'
 
 config()
+
+const verifyEmailTemplatePath = path.resolve('src/templates/verify-email.html')
+const verifyEmailTemplate = fs.readFileSync(verifyEmailTemplatePath, 'utf8')
+
 // Create SES service object.
 const sesClient = new SESClient({
   region: process.env.AWS_REGION as string,
@@ -51,7 +57,7 @@ const createSendEmailCommand = ({
   })
 }
 
-export const sendVerifyEmail = (toAddress: string, subject: string, body: string) => {
+const sendVerifyEmail = (toAddress: string, subject: string, body: string) => {
   const sendEmailCommand = createSendEmailCommand({
     fromAddress: process.env.SES_FROM_ADDRESS as string,
     toAddresses: toAddress,
@@ -60,6 +66,38 @@ export const sendVerifyEmail = (toAddress: string, subject: string, body: string
   })
 
   return sesClient.send(sendEmailCommand)
+}
+
+export const sendVerifyRegisterEmail = (
+  toAddress: string,
+  emailVerifyToken: string,
+  template: string = verifyEmailTemplate
+) => {
+  return sendVerifyEmail(
+    toAddress,
+    'Verify your email',
+    template
+      .replace('{{title}}', 'Please verify your email')
+      .replace('{{content}}', 'Click the button below to verify your email')
+      .replace('{{titleLink}}', 'Verify')
+      .replace('{{link}}', `${process.env.CLIENT_URL}/verify-email?token=${emailVerifyToken}`)
+  )
+}
+
+export const sendForgotPasswordEmail = (
+  toAddress: string,
+  forgotPasswordToken: string,
+  template: string = verifyEmailTemplate
+) => {
+  return sendVerifyEmail(
+    toAddress,
+    'Forgot password',
+    template
+      .replace('{{title}}', 'You are receiving this email because you requested to reset your password')
+      .replace('{{content}}', 'Click the button below to reset your password')
+      .replace('{{titleLink}}', 'Reset Password')
+      .replace('{{link}}', `${process.env.CLIENT_URL}/reset-password?token=${forgotPasswordToken}`)
+  )
 }
 
 // sendVerifyEmail('nguyenvantai.quangtri@gmail.com', 'Test SES', '<h1>Bạn có khỏe không? 3/9/2023</h1>')
