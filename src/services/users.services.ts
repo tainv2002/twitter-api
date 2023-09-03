@@ -13,6 +13,7 @@ import { ErrorWithStatus } from '~/models/Errors'
 import { USERS_MESSAGES } from '~/constants/messages'
 import HTTP_STATUS_CODE from '~/constants/httpStatusCode'
 import Follower from '~/models/schemas/Follower.schema'
+import { sendVerifyEmail } from '~/utils/email'
 config()
 
 class UsersService {
@@ -128,6 +129,21 @@ class UsersService {
       })
     )
 
+    // Flow verify email
+    // 1. Server send email to user
+    // 2. User click link in email
+    // 3. Client send request to server with email_verify_token
+    // 4. Server verify email token
+    // 5. Client receive access_token and refresh_token
+
+    await sendVerifyEmail(
+      payload.email,
+      'Verify your email',
+      `
+      <h1>Verify your email</h1>
+      <p>Click <a href="${process.env.CLIENT_URL}/verify-email?token=${email_verify_token}">here<a/> to verify your email</p>
+    `
+    )
     console.log('email_verify_token: ', email_verify_token)
 
     return {
