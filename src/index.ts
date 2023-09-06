@@ -7,6 +7,7 @@ import { config } from 'dotenv'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
 import cors from 'cors'
 // import '~/utils/fake'
+// import '~/utils/s3'
 
 config()
 databaseService
