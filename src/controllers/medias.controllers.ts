@@ -6,6 +6,7 @@ import { USERS_MESSAGES } from '~/constants/messages'
 import mediasService from '~/services/medias.services'
 import fs from 'fs'
 import mime from 'mime'
+import { sendFileFromS3 } from '~/utils/s3'
 
 export const uploadImageController = async (req: Request, res: Response) => {
   const urls = await mediasService.uploadImage(req)
@@ -78,26 +79,18 @@ export const serveVideoStreamController = (req: Request, res: Response) => {
   videoStream.pipe(res)
 }
 
-export const serveVideoM3u8Controller = (req: Request, res: Response) => {
+export const serveVideoM3u8Controller = async (req: Request, res: Response) => {
   const { id } = req.params
-  const filePath = path.resolve(UPLOAD_VIDEO_DIR, id, 'master.m3u8')
+  const s3filepath = `videos-hls/${id}/master.m3u8`
 
-  return res.sendFile(filePath, (err) => {
-    if (err) {
-      return res.status((err as any).status).send('Not found')
-    }
-  })
+  await sendFileFromS3(res, s3filepath)
 }
 
-export const serveSegmentController = (req: Request, res: Response) => {
+export const serveSegmentController = async (req: Request, res: Response) => {
   const { id, v, segment } = req.params
-  const filePath = path.resolve(UPLOAD_VIDEO_DIR, id, v, segment)
+  const s3filepath = `videos-hls/${id}/${v}/${segment}`
 
-  return res.sendFile(filePath, (err) => {
-    if (err) {
-      return res.status((err as any).status).send('Not found')
-    }
-  })
+  await sendFileFromS3(res, s3filepath)
 }
 
 export const getVideoStatusController = async (req: Request, res: Response) => {

@@ -5,10 +5,10 @@ const MAXIMUM_BITRATE_720P = 5 * 10 ** 6 // 5Mbps
 const MAXIMUM_BITRATE_1080P = 8 * 10 ** 6 // 8Mbps
 const MAXIMUM_BITRATE_1440P = 16 * 10 ** 6 // 16Mbps
 
-const getBitrate = (filePath: string) => {
+const getBitrate = (filepath: string) => {
   return new Promise<number>((resolve, reject) => {
     exec(
-      `ffprobe -v error -select_streams v:0 -show_entries stream=bit_rate -of default=nw=1:nk=1 ${filePath}`,
+      `ffprobe -v error -select_streams v:0 -show_entries stream=bit_rate -of default=nw=1:nk=1 ${filepath}`,
       (err, stdout, stderr) => {
         if (err) {
           return reject(err)
@@ -19,13 +19,13 @@ const getBitrate = (filePath: string) => {
   })
 }
 
-const getResolution = (filePath: string) => {
+const getResolution = (filepath: string) => {
   return new Promise<{
     width: number
     height: number
   }>((resolve, reject) => {
     exec(
-      `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${filePath}`,
+      `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${filepath}`,
       (err, stdout, stderr) => {
         if (err) {
           return reject(err)

@@ -1,10 +1,10 @@
 import { Request } from 'express'
-import { getNameFromBaseName, handleUploadImage, handleUploadVideo } from '~/utils/file'
+import { getBasename, getFiles, handleUploadImage, handleUploadVideo } from '~/utils/file'
 import sharp from 'sharp'
 import path from 'path'
 import fs from 'fs'
 import fsPromise from 'fs/promises'
-import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
+import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
 import { isProduction } from '~/constants/config'
 import { config } from 'dotenv'
 import { EncodingStatus, MediaType } from '~/constants/enums'
@@ -28,7 +28,7 @@ class Queue {
 
   async enqueue(item: string) {
     this.items.push(item)
-    const idName = getNameFromBaseName(item)
+    const idName = getBasename(item)
     await databaseService.videoStatus.insertOne(
       new VideoStatus({
         name: idName,
@@ -43,7 +43,7 @@ class Queue {
     if (this.items.length > 0) {
       this.encoding = true
       const videoPath = this.items[0]
-      const idName = getNameFromBaseName(videoPath)
+      const idName = getBasename(videoPath)
       await databaseService.videoStatus.updateOne(
         { name: idName },
         {
@@ -58,7 +58,23 @@ class Queue {
       try {
         await encodeHLSWithMultipleVideoStreams(videoPath)
         this.items.shift()
-        fs.unlinkSync(videoPath)
+
+        const videoDir = path.resolve(UPLOAD_VIDEO_DIR, idName)
+        const files = getFiles(videoDir)
+        await Promise.all(
+          files.map((filepath) => {
+            const filename = 'videos-hls' + filepath.replace(path.resolve(UPLOAD_VIDEO_DIR), '').replace(/\\/g, '/')
+
+            return uploadFileToS3({
+              filepath,
+              filename,
+              contentType: mime.getType(filepath) as string
+            })
+          })
+        )
+
+        await Promise.all([fsPromise.unlink(videoPath), fsPromise.rm(videoDir, { recursive: true, force: true })])
+
         await databaseService.videoStatus.updateOne(
           { name: idName },
           {
@@ -105,7 +121,7 @@ class MediasService {
     const files = await handleUploadImage(req)
     const result = await Promise.all<Media>(
       files.map(async (file) => {
-        const newName = getNameFromBaseName(file.newFilename) + '.jpg'
+        const newName = getBasename(file.newFilename) + '.jpg'
         const newPath = path.join(UPLOAD_IMAGE_DIR, newName)
         await sharp(file.filepath).jpeg().toFile(newPath)
         const s3Result = await uploadFileToS3({
@@ -115,13 +131,6 @@ class MediasService {
         })
 
         await Promise.all([fsPromise.unlink(file.filepath), fsPromise.unlink(newPath)])
-
-        // return {
-        //   url: isProduction
-        //     ? `${process.env.HOST}/static/image/${newName}`
-        //     : `http://localhost:${process.env.PORT}/static/image/${newName}`,
-        //   type: MediaType.Image
-        // }
 
         return {
           url: (s3Result as CompleteMultipartUploadCommandOutput).Location as string,
@@ -144,8 +153,6 @@ class MediasService {
           contentType: mime.getType(file.filepath) as string
         })
 
-        console.log(file)
-
         await fsPromise.unlink(file.filepath)
 
         return {
@@ -163,7 +170,7 @@ class MediasService {
 
     const result: Media[] = await Promise.all(
       files.map(async (file) => {
-        const basename = getNameFromBaseName(file.newFilename)
+        const basename = getBasename(file.newFilename)
         queue.enqueue(file.filepath)
 
         return {
