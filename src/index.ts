@@ -6,6 +6,9 @@ import { initFolders } from './utils/file'
 import { config } from 'dotenv'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
 import cors from 'cors'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+
 // import '~/utils/fake'
 // import '~/utils/s3'
 
@@ -24,6 +27,7 @@ databaseService
 
 const app = express()
 const port = process.env.PORT || 4001
+const httpServer = createServer(app)
 
 // Tạo folders
 initFolders()
@@ -40,6 +44,22 @@ app.get('/', (req, res) => {
 
 app.use(defaultErrorHandler)
 
-app.listen(port, () => {
-  console.log(`Twitter server listening on port ${port}`)
+// app.listen(port, () => {
+//   console.log(`Twitter server listening on port ${port}`)
+// })
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:3000'
+  }
 })
+
+io.on('connection', (socket) => {
+  console.log(`user ${socket.id} connected`)
+
+  socket.on('disconnect', () => {
+    console.log(`user ${socket.id} disconnected`)
+  })
+})
+
+httpServer.listen(port)
