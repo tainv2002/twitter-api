@@ -3,6 +3,7 @@ import { getNameFromBaseName, handleUploadImage, handleUploadVideo } from '~/uti
 import sharp from 'sharp'
 import path from 'path'
 import fs from 'fs'
+import fsPromise from 'fs/promises'
 import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
 import { isProduction } from '~/constants/config'
 import { config } from 'dotenv'
@@ -11,6 +12,10 @@ import { Media } from '~/models/Others'
 import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
 import databaseService from './database.services'
 import VideoStatus from '~/models/schemas/VideoStatus.Schema'
+import { uploadFileToS3 } from '~/utils/s3'
+import mime from 'mime'
+import { CompleteMultipartUploadCommandOutput } from '@aws-sdk/client-s3'
+
 config()
 
 class Queue {
@@ -103,12 +108,22 @@ class MediasService {
         const newName = getNameFromBaseName(file.newFilename) + '.jpg'
         const newPath = path.join(UPLOAD_IMAGE_DIR, newName)
         await sharp(file.filepath).jpeg().toFile(newPath)
-        fs.unlinkSync(file.filepath)
+        const s3Result = await uploadFileToS3({
+          filename: newName,
+          filepath: newPath,
+          contentType: mime.getType(newPath) as string
+        })
 
+        await Promise.all([fsPromise.unlink(file.filepath), fsPromise.unlink(newPath)])
+
+        // return {
+        //   url: isProduction
+        //     ? `${process.env.HOST}/static/image/${newName}`
+        //     : `http://localhost:${process.env.PORT}/static/image/${newName}`,
+        //   type: MediaType.Image
+        // }
         return {
-          url: isProduction
-            ? `${process.env.HOST}/static/image/${newName}`
-            : `http://localhost:${process.env.PORT}/static/image/${newName}`,
+          url: (s3Result as CompleteMultipartUploadCommandOutput).Location as string,
           type: MediaType.Image
         }
       })

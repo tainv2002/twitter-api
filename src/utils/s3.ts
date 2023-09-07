@@ -16,23 +16,31 @@ const s3 = new S3({
 
 // s3.listBuckets({}).then((data) => console.log(data))
 
-const file = fs.readFileSync(path.resolve('uploads/images/81e113d2f4d14937e3a2b1a00.jpg'))
-const parallelUploads3 = new Upload({
-  client: s3,
-  params: { Bucket: 'twitter-clone-ap-southeast-1-2023', Key: 'anh1.jpg', Body: file, ContentType: 'image/jpeg' },
+export const uploadFileToS3 = ({
+  contentType,
+  filename,
+  filepath
+}: {
+  filename: string
+  filepath: string
+  contentType: string
+}) => {
+  const parallelUploads3 = new Upload({
+    client: s3,
+    params: {
+      Bucket: 'twitter-clone-ap-southeast-1-2023',
+      Key: filename,
+      Body: fs.readFileSync(filepath),
+      ContentType: contentType
+    },
 
-  tags: [
-    /*...*/
-  ], // optional tags
-  queueSize: 4, // optional concurrency configuration
-  partSize: 1024 * 1024 * 5, // optional size of each part, in bytes, at least 5MB
-  leavePartsOnError: false // optional manually handle dropped parts
-})
+    tags: [
+      /*...*/
+    ], // optional tags
+    queueSize: 4, // optional concurrency configuration
+    partSize: 1024 * 1024 * 5, // optional size of each part, in bytes, at least 5MB
+    leavePartsOnError: false // optional manually handle dropped parts
+  })
 
-parallelUploads3.on('httpUploadProgress', (progress) => {
-  console.log(progress)
-})
-
-parallelUploads3.done().then((res) => {
-  console.log(res)
-})
+  return parallelUploads3.done()
+}
