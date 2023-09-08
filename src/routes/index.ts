@@ -5,6 +5,7 @@ import staticRouter from './static.routes'
 import tweetsRouter from './tweets.routes'
 import bookmarksRouter from './bookmarks.routes'
 import searchRouter from './search.routes'
+import conversationsRouter from './conversations.routes'
 
 const routes = (app: Express) => {
   app.use('/users', usersRouter)
@@ -13,6 +14,7 @@ const routes = (app: Express) => {
   app.use('/tweets', tweetsRouter)
   app.use('/bookmarks', bookmarksRouter)
   app.use('/search', searchRouter)
+  app.use('/conversations', conversationsRouter)
 }
 
 export default routes

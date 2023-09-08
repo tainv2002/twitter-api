@@ -106,3 +106,9 @@ export const SEARCH_MESSAGES = {
   INVALID_MEDIA_TYPE: `Media type must be one of ${Object.values(MediaTypeQuery).join('/')}`,
   INVALID_PEOPLE_FOLLOWED: `People follow must be one of ${Object.values(PeopleFollowedQuery).join('/')}`
 }
+
+export const CONVERSATIONS_MESSAGE = {
+  INVALID_RECEIVER_ID: 'Invalid Receiver ID',
+  RECEIVER_NOT_FOUND: 'Receiver not found',
+  GET_CONVERSATIONS_BY_RECEIVER_ID_SUCCESSFULLY: 'Get conversations by receiver id successfully'
+}
