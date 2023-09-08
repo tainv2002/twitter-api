@@ -24,6 +24,7 @@ databaseService
     databaseService.indexFollowers()
     databaseService.indexHashtags()
     databaseService.indexTweets()
+    databaseService.indexConversations()
   })
   .catch(console.dir)
 
