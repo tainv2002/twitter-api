@@ -8,6 +8,8 @@ import { UPLOAD_VIDEO_DIR } from './constants/dir'
 import cors from 'cors'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
+import Conversation from './models/schemas/Conversation.schema'
+import { ObjectId } from 'mongodb'
 
 // import '~/utils/fake'
 // import '~/utils/s3'
@@ -65,8 +67,18 @@ io.on('connection', (socket) => {
   }
   console.log(users)
 
-  socket.on('private message', (data: any) => {
-    const receiver_socket_id = users[data.to].socket_id
+  socket.on('private message', async (data) => {
+    const receiver_socket_id = users[data.to]?.socket_id
+    if (!receiver_socket_id) return
+
+    await databaseService.conversations.insertOne(
+      new Conversation({
+        receiver_id: new ObjectId(data.to),
+        sender_id: new ObjectId(data.from),
+        content: data.content
+      })
+    )
+
     socket.to(receiver_socket_id).emit('receive private message', {
       content: data.content,
       from: user_id
