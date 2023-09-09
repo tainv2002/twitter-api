@@ -100,6 +100,11 @@ export const BOOKMARKS_MESSAGE = {
   UNBOOKMARK_TWEET_SUCCESSFULLY: 'Unbookmark tweet successfully'
 }
 
+export const LIKE_MESSAGES = {
+  LIKE_SUCCESSFULLY: 'Like successfully',
+  UNLIKE_SUCCESSFULLY: 'Unlike successfully'
+}
+
 export const SEARCH_MESSAGES = {
   SEARCH_SUCCESSFULLY: 'Search successfully',
   CONTENT_MUST_BE_A_STRING: 'Content must be a string',

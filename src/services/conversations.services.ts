@@ -36,6 +36,11 @@ class ConversationsService {
               },
               {
                 $limit: limit
+              },
+              {
+                $sort: {
+                  created_at: 1
+                }
               }
             ],
             metadata: [
@@ -49,7 +54,7 @@ class ConversationsService {
       .toArray()
 
     const conversations = (result?.[0].data || []) as Conversation[]
-    const total_count = (result?.[0]?.metadata[0].total_count || 0) as number
+    const total_count = (result?.[0]?.metadata[0]?.total_count || 0) as number
 
     return {
       conversations,
