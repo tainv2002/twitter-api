@@ -1,0 +1,166 @@
+openapi: 3.0.3
+info:
+  title: Twitter API
+  description: |-
+    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
+    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
+    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
+    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
+
+    _If you're looking for the Swagger 2.0/OAS 2.0 version of Petstore, then click [here](https://editor.swagger.io/?url=https://petstore.swagger.io/v2/swagger.yaml). Alternatively, you can load via the `Edit > Load Petstore OAS 2.0` menu option!_
+
+    Some useful links:
+    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
+    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: taivannho5a@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:4000
+tags:
+  - name: users
+    description: API for Users
+paths:
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Login
+      description: Login a user
+      operationId: login
+      requestBody:
+        description: Login request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginBody'
+        required: true
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login successful
+                  data:
+                    $ref: '#/components/schemas/SuccessAuthentication'
+
+        '422':
+          description: Invalid input
+  /users/me:
+    get:
+      tags:
+        - users
+      summary: Get me
+      description: Get my profile
+      operationId: getMe
+      security:
+        - BearerAuth: []
+      responses:
+        default:
+          description: Get me successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get me successfully
+                  data:
+                    $ref: '#/components/schemas/User'
+components:
+  schemas:
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          example: nguyenvantai.quangtri+1@gmail.com
+        password:
+          type: string
+          example: Tai123@
+    SuccessAuthentication:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRmNDY0NDIyZDcxNWRjOWJmYjNlN2E1IiwidG9rZW5fdHlwZSI6MCwidmVyaWZ5IjoxLCJpYXQiOjE2OTQzMzc4OTksImV4cCI6MTY5NDQyNzg5OX0.KrV8RL9a0wKVxfb6nvAJJUmHT2mFXUrJNcYDl_6gKJ8
+        refresh_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRmNDY0NDIyZDcxNWRjOWJmYjNlN2E1IiwidG9rZW5fdHlwZSI6MSwidmVyaWZ5IjoxLCJpYXQiOjE2OTQzMzc4OTksImV4cCI6MTcwMjk3Nzg5OX0.3bp_D5ds2TI5L-Or34QFCoJgPMBj8ZD4obGtSaMCN30
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: MongoId
+          example: '64f464422d715dc9bfb3e7a5'
+        name:
+          type: string
+          example: 'Tài Văn'
+        email:
+          type: string
+          example: 'nguyenvantai.quangtri+2@gmail.com'
+        date_of_birth:
+          type: string
+          format: ISO8601
+          example: '2023-07-26T08:42:40.907Z'
+        created_at:
+          type: string
+          format: ISO8601
+          example: '2023-09-03T10:47:30.685Z'
+        updated_at:
+          type: string
+          format: ISO8601
+          example: '2023-09-03T10:47:30.685Z'
+        verify:
+          $ref: '#/components/schemas/UserVerifyStatus'
+          example: 1
+        twitter_circle:
+          type: array
+          format: MongoId
+          items:
+            type: string
+          example: ['64f464422d715dc9bfb3e7a7', '64f464422d715dc9bfb3e7a9']
+        avatar:
+          type: string
+          example: 'https://example.com/avatar.jpg'
+        bio:
+          type: string
+          example: 'I am a software engineer at Google.'
+        location:
+          type: string
+          example: 'Ho Chi Minh City, Vietnam'
+        website:
+          type: string
+          example: 'https://example.com'
+        username:
+          type: string
+          example: 'tai_van'
+        cover_photo:
+          type: string
+          example: 'https://example.com/cover_photo.jpg'
+    UserVerifyStatus:
+      type: integer
+      enum:
+        - Unverified
+        - Verified
+        - Banned
+      example: 1
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
