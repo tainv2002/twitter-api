@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: Twitter API
   termsOfService: http://swagger.io/terms/
@@ -489,7 +489,7 @@ paths:
         required: true
       responses:
         default:
-          description: Upload image successfully
+          description: Upload images successfully
           content:
             application/json:
               schema:
@@ -498,3 +498,212 @@ paths:
                   message:
                     type: string
                     example: Upload image successfully
+                  data:
+                    $ref: '#/components/schemas/UploadVideoSuccess'
+        '500':
+          description: Invalid File
+
+  /medias/upload-video:
+    post:
+      tags:
+        - medias
+      summary: Upload videos
+      description: Upload videos
+      operationId: upload_videos
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Upload videos body
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadVideoBody'
+        required: true
+      responses:
+        default:
+          description: Upload videos successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Upload video successfully
+                  data:
+                    $ref: '#/components/schemas/UploadVideoSuccess'
+        '500':
+          description: Invalid File
+
+  /medias/upload-video-hls:
+    post:
+      tags:
+        - medias
+      summary: Upload videos HLS
+      description: Upload videos HLS
+      operationId: upload_videos_hls
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Upload videos HLS body
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadVideoBody'
+        required: true
+      responses:
+        default:
+          description: Upload videos HLS successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Upload video successfully
+                  data:
+                    $ref: '#/components/schemas/UploadVideoHLSSuccess'
+        '500':
+          description: Invalid File
+
+  /static/video-hls/{id}/master.m3u8:
+    get:
+      tags:
+        - medias
+      summary: Serve video m3u8
+      description: Serve video m3u8
+      operationId: serve_video_m3u8
+      parameters:
+        - name: id
+          in: path
+          description: Video name
+          required: true
+          schema:
+            type: string
+            default: 1lTO0yRqLaKC2ATmAjgRv
+      responses:
+        default:
+          description: Serve video m3u8 successfully
+          content:
+            text:
+              example: |
+                #EXTM3U
+                #EXT-X-VERSION:3
+                #EXT-X-STREAM-INF:BANDWIDTH=1686620,RESOLUTION=406x720,CODECS="avc1.640020,mp4a.40.2"
+                v0\prog_index.m3u8
+
+                #EXT-X-STREAM-INF:BANDWIDTH=1686620,RESOLUTION=608x1080,CODECS="avc1.640032,mp4a.40.2"
+                v1\prog_index.m3u8
+
+        '404':
+          description: Not found
+
+  /static/video-hls/{id}/{v}/{segment}:
+    get:
+      tags:
+        - medias
+      summary: Serve segment
+      description: Serve segment
+      operationId: serve_segment
+      parameters:
+        - name: id
+          in: path
+          description: Video name
+          required: true
+          schema:
+            type: string
+            default: 1lTO0yRqLaKC2ATmAjgRv
+
+        - name: v
+          in: path
+          description: Video version
+          required: true
+          schema:
+            type: string
+            default: v0
+
+        - name: segment
+          in: path
+          description: Segment name
+          required: true
+          schema:
+            type: string
+            default: fileSequence0.ts
+
+      responses:
+        default:
+          description: Serve segment successfully
+
+        '404':
+          description: Not found
+
+  /tweets:
+    post:
+      tags:
+        - tweets
+      summary: Create tweet
+      description: Create tweet
+      operationId: create_tweet
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Follow request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTweetBody'
+        required: true
+      responses:
+        default:
+          description: Create tweet successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Create tweet successfully
+                  data:
+                    $ref: '#/components/schemas/Tweet'
+
+        '422':
+          description: Invalid input
+
+    get:
+      tags:
+        - tweets
+      summary: Get new feed
+      description: Get new feed
+      operationId: get_new_feed
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            example: 5
+
+      responses:
+        default:
+          description: Get new feed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get new feeds successfully
+                  data:
+                    tweets:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/User'

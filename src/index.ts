@@ -22,7 +22,7 @@ import swaggerJSDoc, { Options } from 'swagger-jsdoc'
 
 const options: Options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: '3.1.0',
     info: {
       title: 'Twitter API',
       version: '1.0.0',

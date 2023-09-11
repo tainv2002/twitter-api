@@ -14,56 +14,28 @@ class ConversationsService {
     limit: number
     page: number
   }) {
-    const receiver_object_id = new ObjectId(receiver_id)
-    const sender_object_id = new ObjectId(sender_id)
-
-    const result = await databaseService.conversations
-      .aggregate([
+    const match = {
+      $or: [
         {
-          $match: {
-            $or: [
-              {
-                sender_id: sender_object_id,
-                receiver_id: receiver_object_id
-              },
-              {
-                sender_id: receiver_object_id,
-                receiver_id: sender_object_id
-              }
-            ]
-          }
+          sender_id: new ObjectId(sender_id),
+          receiver_id: new ObjectId(receiver_id)
         },
         {
-          $facet: {
-            data: [
-              {
-                $sort: {
-                  created_at: -1
-                }
-              },
-              {
-                $skip: limit * (page - 1)
-              },
-              {
-                $limit: limit
-              }
-            ],
-            metadata: [
-              {
-                $count: 'total_count'
-              }
-            ]
-          }
+          sender_id: new ObjectId(receiver_id),
+          receiver_id: new ObjectId(sender_id)
         }
-      ])
+      ]
+    }
+    const conversations = await databaseService.conversations
+      .find(match)
+      .sort({ created_at: -1 })
+      .skip(limit * (page - 1))
+      .limit(limit)
       .toArray()
-
-    const conversations = (result?.[0].data || []) as Conversation[]
-    const total_count = (result?.[0]?.metadata[0]?.total_count || 0) as number
-
+    const total = await databaseService.conversations.countDocuments(match)
     return {
       conversations,
-      total_count
+      total
     }
   }
 }

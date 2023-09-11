@@ -27,7 +27,7 @@ export const getConversationsByReceiverIdController = async (
       conversations: result.conversations,
       page,
       limit,
-      total_page: Math.ceil(result.total_count / limit)
+      total_page: Math.ceil(result.total / limit)
     }
   })
 }

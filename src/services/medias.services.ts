@@ -153,7 +153,9 @@ class MediasService {
           contentType: mime.getType(file.filepath) as string
         })
 
-        await fsPromise.unlink(file.filepath)
+        const videoDir = path.resolve(UPLOAD_VIDEO_DIR, getBasename(file.newFilename))
+
+        await fsPromise.rm(videoDir, { force: true, recursive: true })
 
         return {
           url: (s3Result as CompleteMultipartUploadCommandOutput).Location as string,

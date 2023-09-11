@@ -234,7 +234,16 @@ components:
             type: string
             format: binary
 
-    FileResponse:
+    UploadVideoBody:
+      type: object
+      properties:
+        video:
+          type: array
+          items:
+            type: string
+            format: binary
+
+    UploadImageSuccess:
       type: array
       items:
         type: object
@@ -244,6 +253,140 @@ components:
             example: https://twitter-clone-ap-southeast-1-2023.s3.ap-southeast-1.amazonaws.com/images/85bc96c9c325d6b2026d60f00.jpg
           type:
             $ref: '#/components/schemas/MediaType'
+            example: 0
+
+    UploadVideoSuccess:
+      type: array
+      items:
+        type: object
+        properties:
+          url:
+            type: string
+            example: https://twitter-clone-ap-southeast-1-2023.s3.ap-southeast-1.amazonaws.com/videos%2FlqRpv-aaz6ob90MwXHb1c.mp4
+          type:
+            $ref: '#/components/schemas/MediaType'
+            example: 1
+
+    UploadVideoHLSSuccess:
+      type: array
+      items:
+        type: object
+        properties:
+          url:
+            type: string
+            example: http://localhost:4000/static/video-hls/BAXcytTxQnPWE9uOXfKlt/master.m3u8
+          type:
+            $ref: '#/components/schemas/MediaType'
+            example: 2
+
+    CreateTweetBody:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TweetType'
+          example: 2
+        audience:
+          $ref: '#/components/schemas/TweetAudience'
+          example: 0
+        content:
+          type: string
+          example: ''
+        parent_id:
+          type: string
+          format: MongoId
+          example: '64e6dd19b0286c19d1f556bc'
+        hashtags:
+          type: array
+          items:
+            type: string
+          example:
+            - 'tai'
+            - 'nguyen1'
+        mentions:
+          type: array
+          items:
+            type: string
+            format: MongoId
+          example: []
+        medias:
+          type: array
+          items:
+            type: string
+            format: MongoId
+          example: []
+        guest_views:
+          type: integer
+          example: 0
+
+    Tweet:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: MongoId
+          example: '64feecffe94b4544bb156b5f'
+        audience:
+          $ref: '#/components/schemas/TweetAudience'
+          example: 0
+        content:
+          type: string
+          example: ''
+        guest_views:
+          type: integer
+          example: 0
+        user_views:
+          type: integer
+          example: 0
+        hashtags:
+          type: array
+          items:
+            type: string
+            format: MongoId
+          example:
+            - '64e4e68a9854ad4a304f00e1'
+            - '64e4e8ee3c768e1faf19e60c'
+        mentions:
+          type: array
+          items:
+            type: string
+            format: MongoId
+          example: []
+        medias:
+          type: array
+          items:
+            type: string
+            format: MongoId
+          example: []
+        parent_id:
+          type: string
+          format: MongoId
+          example: '64e6dd19b0286c19d1f556bc'
+        type:
+          $ref: '#/components/schemas/TweetType'
+          example: 2
+        user_id:
+          type: string
+          format: MongoId
+          example: '64f464422d715dc9bfb3e7a5'
+        created_at:
+          type: string
+          format: ISO8601
+          example: '2023-09-11T10:33:35.692Z'
+        updated_at:
+          type: string
+          format: ISO8601
+          example: '2023-09-11T10:33:35.692Z'
+
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: number
+          example: 5
+        page:
+          type: number
+          example: 1
+
   securitySchemes:
     BearerAuth:
       type: http

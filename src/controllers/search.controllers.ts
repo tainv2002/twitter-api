@@ -10,7 +10,7 @@ export const searchController = async (req: Request<any, any, any, SearchRequest
   const limit = +req.query.limit
   const page = +req.query.page
 
-  const { tweets, tweets_count } = await searchService.search({
+  const { tweets, total } = await searchService.search({
     content,
     limit,
     page,
@@ -25,7 +25,7 @@ export const searchController = async (req: Request<any, any, any, SearchRequest
       tweets,
       limit,
       page,
-      total_page: Math.ceil(tweets_count / limit)
+      total_page: Math.ceil(total / limit)
     }
   })
 }
