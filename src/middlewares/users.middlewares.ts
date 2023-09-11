@@ -11,12 +11,11 @@ import { verifyToken } from '~/utils/jwt'
 import { validate } from '~/utils/validations'
 import { JsonWebTokenError, Secret } from 'jsonwebtoken'
 import capitalize from 'lodash/capitalize'
-import { config } from 'dotenv'
 import { ObjectId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enums'
 import { REGEX_USERNAME } from '~/constants/regex'
 import { verifyAccessToken } from '~/utils/common'
-config()
+import { envConfig } from '~/constants/config'
 
 const schemaValidator: Record<string, ParamSchema> = {
   password: {
@@ -95,7 +94,7 @@ const schemaValidator: Record<string, ParamSchema> = {
         try {
           const decoded_forgot_password_token = await verifyToken({
             token: value,
-            secretOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as Secret
+            secretOrPublicKey: envConfig.jwtSecretForgotPasswordToken as Secret
           })
 
           const user = await databaseService.users.findOne({
@@ -318,7 +317,7 @@ export const refreshTokenValidator = validate(
               }
 
               const [decoded_refresh_token, refresh_token] = await Promise.all([
-                verifyToken({ token: value, secretOrPublicKey: process.env.JWT_SECRET_REFRESH_TOKEN as Secret }),
+                verifyToken({ token: value, secretOrPublicKey: envConfig.jwtSecretRefreshToken as Secret }),
                 databaseService.refreshTokens.findOne({ token: value })
               ])
 
@@ -367,7 +366,7 @@ export const verifyEmailTokenValidator = validate(
             try {
               const decoded_verify_email_token = await verifyToken({
                 token: value,
-                secretOrPublicKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as Secret
+                secretOrPublicKey: envConfig.jwtSecretEmailVerifyToken as Secret
               })
 
               ;(req as Request).decoded_verify_email_token = decoded_verify_email_token

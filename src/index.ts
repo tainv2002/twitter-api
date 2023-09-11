@@ -3,16 +3,14 @@ import databaseService from './services/database.services'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
 import routes from './routes'
 import { initFolders } from './utils/file'
-import { config } from 'dotenv'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
 import cors from 'cors'
 import { createServer } from 'http'
 import initSocket from './utils/socket'
-import YAML from 'yaml'
-import fs from 'fs'
-import path from 'path'
+
 import swaggerUi from 'swagger-ui-express'
 import swaggerJSDoc, { Options } from 'swagger-jsdoc'
+import { envConfig } from './constants/config'
 
 // import '~/utils/fake'
 // import '~/utils/s3'
@@ -47,7 +45,6 @@ const options: Options = {
 
 const openapiSpecification = swaggerJSDoc(options)
 
-config()
 databaseService
   .connect()
   .then(() => {
@@ -62,7 +59,7 @@ databaseService
   .catch(console.dir)
 
 const app = express()
-const port = process.env.PORT || 4001
+const port = envConfig.port
 const httpServer = createServer(app)
 
 // Tạo folders

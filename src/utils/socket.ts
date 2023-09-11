@@ -7,16 +7,14 @@ import { verifyAccessToken } from '~/utils/common'
 import { TokenPayload } from '~/models/requests/User.requests'
 import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS_CODE from '~/constants/httpStatusCode'
-import { config } from 'dotenv'
 import databaseService from '~/services/database.services'
 import { Server as HttpServer } from 'http'
-
-config()
+import { envConfig } from '~/constants/config'
 
 const initSocket = (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL
+      origin: envConfig.clientUrl
     }
   })
 

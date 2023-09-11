@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import jwt from 'jsonwebtoken'
-import { config } from 'dotenv'
 import { TokenPayload } from '~/models/requests/User.requests'
-config()
 
 export const signToken = async ({
   payload,

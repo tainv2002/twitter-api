@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { ObjectId, WithId } from 'mongodb'
+import { envConfig } from '~/constants/config'
 import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS_CODE from '~/constants/httpStatusCode'
 import { USERS_MESSAGES } from '~/constants/messages'
@@ -22,8 +23,6 @@ import {
 import User from '~/models/schemas/User.schema'
 import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
-import { config } from 'dotenv'
-config()
 
 export const loginController = async (req: Request<object, object, LoginRequestBody>, res: Response) => {
   const { user } = req
@@ -39,7 +38,7 @@ export const oauthController = async (req: Request, res: Response) => {
 
   const { data } = await usersService.oauth(code as string)
 
-  const urlRedirect = `${process.env.CLIENT_REDIRECT_CALLBACK}?access_token=${data.access_token}&refresh_token=${data.refresh_token}&new_user=${data.new_user}&verify=${data.verify}`
+  const urlRedirect = `${envConfig.clientRedirectCallback}?access_token=${data.access_token}&refresh_token=${data.refresh_token}&new_user=${data.new_user}&verify=${data.verify}`
 
   return res.redirect(urlRedirect)
 }
