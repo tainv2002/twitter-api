@@ -648,7 +648,7 @@ paths:
       security:
         - BearerAuth: []
       requestBody:
-        description: Follow request body
+        description: Create tweet request body
         content:
           application/json:
             schema:
@@ -727,9 +727,8 @@ paths:
           description: Tweet id
           required: true
           schema:
-            type: string
-            format: MongoId
-            default: 64e6dd19b0286c19d1f556bc
+            tweet_id:
+              $ref: '#/components/schemas/MongoId'
       responses:
         default:
           description: Get tweet successfully
@@ -759,9 +758,8 @@ paths:
           description: Tweet id
           required: true
           schema:
-            type: string
-            format: MongoId
-            default: 64e6dd19b0286c19d1f556bc
+            tweet_id:
+              $ref: '#/components/schemas/MongoId'
         - in: query
           name: tweet_type
           schema:
@@ -792,3 +790,278 @@ paths:
                     $ref: '#/components/schemas/TweetDetail'
         '400':
           description: Invalid input
+
+  /bookmarks:
+    post:
+      tags:
+        - bookmarks
+      summary: Bookmark tweet
+      description: Bookmark tweet
+      operationId: bookmark
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Bookmark tweet request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tweet_id:
+                  $ref: '#/components/schemas/MongoId'
+        required: true
+      responses:
+        default:
+          description: Bookmark tweet successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Bookmark tweet successfully
+
+        '400':
+          description: Invalid input
+
+  /bookmarks/tweets/{tweet_id}:
+    delete:
+      tags:
+        - bookmarks
+      summary: Unbookmark tweet by tweet id
+      description: Unbookmark tweet by tweet id
+      operationId: unbookmark_by_tweet_id
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: tweet_id
+          in: path
+          description: Tweet id
+          required: true
+          schema:
+            tweet_id:
+              $ref: '#/components/schemas/MongoId'
+      responses:
+        default:
+          description: Unbookmark tweet by tweet id successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unbookmark tweet by tweet id successfully
+
+        '400':
+          description: Invalid input
+
+  /bookmarks/{bookmark_id}:
+    delete:
+      tags:
+        - bookmarks
+      summary: Unbookmark tweet by ID
+      description: Unbookmark tweet by ID
+      operationId: unbookmark_by_id
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: bookmark_id
+          in: path
+          description: Tweet id
+          required: true
+          schema:
+            bookmark_id:
+              $ref: '#/components/schemas/MongoId'
+      responses:
+        default:
+          description: Unbookmark tweet successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unbookmark tweet successfully
+
+        '400':
+          description: Invalid input
+
+  /likes:
+    post:
+      tags:
+        - likes
+      summary: Like tweet
+      description: Like tweet
+      operationId: like
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Like tweet request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tweet_id:
+                  $ref: '#/components/schemas/MongoId'
+        required: true
+      responses:
+        default:
+          description: Like tweet successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Like successfully
+                  data:
+                    $ref: '#/components/schemas/LikeSuccess'
+        '400':
+          description: Invalid input
+
+  /likes/tweets/{tweet_id}:
+    delete:
+      tags:
+        - likes
+      summary: Unlike tweet by tweet id
+      description: Unlike tweet by tweet id
+      operationId: unbookmark_by_tweet_id
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: tweet_id
+          in: path
+          description: Tweet id
+          required: true
+          schema:
+            tweet_id:
+              $ref: '#/components/schemas/MongoId'
+      responses:
+        default:
+          description: Unlike tweet by tweet id successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unlike successfully
+
+        '400':
+          description: Invalid input
+/search:
+  get:
+    tags:
+      - search
+    summary: Search tweets
+    description: Search tweets
+    operationId: search_tweets
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          example: 1
+        required: true
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          example: 5
+        required: true
+      - in: query
+        name: content
+        schema:
+          type: string
+          example: taideptrai
+        required: true
+      - in: query
+        name: media_type
+        schema:
+          $ref: '#/components/schemas/MediaTypeQuery'
+      - in: query
+        name: people_followed
+        schema:
+          $ref: '#/components/schemas/PeopleFollowed'
+
+    responses:
+      default:
+        description: Search successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Search successfully
+                data:
+                  allOf:
+                    - $ref: '#/components/schemas/PaginationResponse'
+                    - type: object
+                  properties:
+                    tweets:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/TweetDetail'
+      '422':
+        description: Invalid input
+
+/conversations/receivers/{receiver_id}:
+  get:
+    tags:
+      - search
+    summary: Get conversations by receiver id
+    description: Get conversations by receiver id
+    operationId: get_conversations
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          example: 1
+        required: true
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          example: 5
+        required: true
+      - in: path
+        name: receiver_id
+        schema:
+          $ref: '#/components/schemas/MongoId'
+          example: 64f45a9ba7bc37ba07ebf427
+        required: true
+    responses:
+      default:
+        description: Get conversations by receiver id successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Get conversations by receiver id successfully
+                data:
+                  allOf:
+                    - $ref: '#/components/schemas/PaginationResponse'
+                    - type: object
+                  properties:
+                    conversations:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Conversation'
+      '404':
+        description: User not found

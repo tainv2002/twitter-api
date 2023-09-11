@@ -500,6 +500,66 @@ components:
         quotes_count:
           type: integer
           example: 2
+
+    MongoId:
+      type: string
+      format: MongoId
+      example: 64e6dd19b0286c19d1f556bc
+
+    LikeSuccess:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '64ff22a2fb2a3c528678d835'
+        tweet_id:
+          type: string
+          example: '64e18af2ac06e62dacc5f893'
+        user_id:
+          type: string
+          example: '64f45a9ba7bc37ba07ebf427'
+        created_at:
+          type: string
+          format: ISO8601
+          example: '2023-09-11T14:22:26.118Z'
+
+    PeopleFollowed:
+      type: string
+      enum:
+        - on
+        - off
+      example: on
+
+    MediaTypeQuery:
+      type: string
+      enum:
+        - image
+        - video
+      example: image
+
+    Conversation:
+      type: object
+      properties:
+        _id:
+          $ref: '#/components/schemas/MongoId'
+          example: '64fc478d48872c41df387f6f'
+        sender_id:
+          $ref: '#/components/schemas/MongoId'
+          example: '64f464422d715dc9bfb3e7a5'
+        receiver_id:
+          $ref: '#/components/schemas/MongoId'
+          example: '64f45a9ba7bc37ba07ebf427'
+        content:
+          type: string
+          example: '1 2'
+        created_at:
+          type: string
+          format: ISO8601
+          example: '2023-09-09T10:23:09.348Z'
+        updated_at:
+          type: string
+          format: ISO8601
+          example: '2023-09-09T10:23:09.348Z'
   securitySchemes:
     BearerAuth:
       type: http
