@@ -34,7 +34,7 @@ tweetsRouter.post(
 
 /**
  * Description: Get new feeds
- * Path: /new-feeds
+ * Path: /
  * Method: GET
  * Header: { Authorization: Bearer <access_token> }
  * Query: { limit: number, page: number }

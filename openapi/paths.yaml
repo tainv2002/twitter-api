@@ -666,7 +666,7 @@ paths:
                     type: string
                     example: Create tweet successfully
                   data:
-                    $ref: '#/components/schemas/Tweet'
+                    $ref: '#/components/schemas/CreateTweetResponse'
 
         '422':
           description: Invalid input
@@ -703,7 +703,92 @@ paths:
                     type: string
                     example: Get new feeds successfully
                   data:
-                    tweets:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/User'
+                    allOf:
+                      - $ref: '#/components/schemas/PaginationResponse'
+                      - type: object
+                    properties:
+                      tweets:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TweetDetail'
+        '422':
+          description: Invalid input
+
+  /tweets/{tweet_id}:
+    get:
+      tags:
+        - tweets
+      summary: Get tweet detail
+      description: Get tweet detail
+      operationId: get_tweet_detail
+      parameters:
+        - name: tweet_id
+          in: path
+          description: Tweet id
+          required: true
+          schema:
+            type: string
+            format: MongoId
+            default: 64e6dd19b0286c19d1f556bc
+      responses:
+        default:
+          description: Get tweet successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get tweet successfully
+                  data:
+                    $ref: '#/components/schemas/TweetDetail'
+        '400':
+          description: Invalid input
+
+  /tweets/{tweet_id}/children:
+    get:
+      tags:
+        - tweets
+      summary: Get tweet children
+      description: Get tweet children
+      operationId: get_tweet_children
+      parameters:
+        - in: path
+          name: tweet_id
+          description: Tweet id
+          required: true
+          schema:
+            type: string
+            format: MongoId
+            default: 64e6dd19b0286c19d1f556bc
+        - in: query
+          name: tweet_type
+          schema:
+            $ref: '#/components/schemas/TweetType'
+            example: 3
+        - in: query
+          name: page
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            example: 5
+      responses:
+        default:
+          description: Get tweet children successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get  children  successfully
+                  data:
+                    $ref: '#/components/schemas/TweetDetail'
+        '400':
+          description: Invalid input

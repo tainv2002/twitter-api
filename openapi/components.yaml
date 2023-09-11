@@ -76,9 +76,9 @@ components:
     UserVerifyStatus:
       type: integer
       enum:
-        - Unverified
-        - Verified
-        - Banned
+        - 0
+        - 1
+        - 2
       example: 1
 
     RegisterBody:
@@ -195,34 +195,34 @@ components:
     MediaType:
       type: integer
       enum:
-        - Image
-        - Video
-        - HLS
+        - 0
+        - 1
+        - 2
       example: 1
 
     TweetType:
       type: integer
       enum:
-        - Tweet
-        - Retweet
-        - Comment
-        - QuoteTweet
+        - 0
+        - 1
+        - 2
+        - 3
       example: 1
 
     EncodingStatus:
       type: integer
       enum:
-        - Pending
-        - Processing
-        - Fulfilled
-        - Rejected
+        - 0
+        - 1
+        - 2
+        - 3
       example: 1
 
     TweetAudience:
       type: integer
       enum:
-        - Everyone
-        - TwitterCircle
+        - 0
+        - 1
       example: 0
 
     UploadImageBody:
@@ -318,7 +318,7 @@ components:
           type: integer
           example: 0
 
-    Tweet:
+    CreateTweetResponse:
       type: object
       properties:
         _id:
@@ -377,7 +377,7 @@ components:
           format: ISO8601
           example: '2023-09-11T10:33:35.692Z'
 
-    Pagination:
+    PaginationResponse:
       type: object
       properties:
         limit:
@@ -386,7 +386,120 @@ components:
         page:
           type: number
           example: 1
+        total_page:
+          type: number
+          example: 1
 
+    Hashtag:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: MongoId
+          example: '64e4e8ee3c768e1faf19e60c'
+        name:
+          type: string
+          example: 'nguyen1'
+        createdAt:
+          type: string
+          format: ISO8601
+          example: '2023-08-22T16:57:18.743Z'
+
+    Mention:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: MongoId
+          example: '64e6ddde33aeb3f445b517f2'
+        email:
+          type: string
+          example: 'taivan1@gmail.com'
+        username:
+          type: string
+          example: 'user64e6ddde33aeb3f445b517f2'
+        name:
+          type: string
+          example: 'Tài Văn'
+
+    TweetDetail:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: MongoId
+          example: '64e6dd19b0286c19d1f556bc'
+        audience:
+          $ref: '#/components/schemas/TweetAudience'
+          example: 0
+        content:
+          type: string
+          example: 'Chi nhung nguoi nam trong circle moi thay duoc tweet'
+        guest_views:
+          type: integer
+          example: 7
+        user_views:
+          type: integer
+          example: 28
+        medias:
+          type: array
+          items:
+            type: string
+          example: []
+        parent_id:
+          type: string
+          format: MongoId
+          example: null
+        type:
+          $ref: '#/components/schemas/TweetType'
+          example: 0
+        user_id:
+          type: string
+          format: MongoId
+          example: '64e5dfd8982bd3d3512aee01'
+        created_at:
+          type: string
+          format: ISO8601
+          example: '2023-08-24T04:31:21.238Z'
+        updated_at:
+          type: string
+          format: ISO8601
+          example: '2023-09-11T11:13:55.594Z'
+        hashtags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hashtag'
+          example:
+            - _id: '64e4e8ee3c768e1faf19e60c'
+              name: 'nguyen1'
+              createdAt: '2023-08-22T16:57:18.743Z'
+            - _id: '64e4e68a9854ad4a304f00e1'
+              name: 'tai'
+              createdAt: '2023-08-22T16:47:06.699Z'
+        mentions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TweetType'
+          example:
+            - _id: '64e6ddde33aeb3f445b517f2'
+              email: 'taivan1@gmail.com'
+              username: 'user64e6ddde33aeb3f445b517f2'
+              name: 'Tài Văn'
+        bookmarks:
+          type: integer
+          example: 1
+        likes:
+          type: integer
+          example: 0
+        retweets_count:
+          type: integer
+          example: 2
+        comments_count:
+          type: integer
+          example: 15
+        quotes_count:
+          type: integer
+          example: 2
   securitySchemes:
     BearerAuth:
       type: http
