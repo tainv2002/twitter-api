@@ -4,21 +4,20 @@ import { defaultErrorHandler } from './middlewares/error.middlewares'
 import routes from './routes'
 import { initFolders } from './utils/file'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
-import cors from 'cors'
+import cors, { CorsOptions } from 'cors'
 import { createServer } from 'http'
 import initSocket from './utils/socket'
-
 import swaggerUi from 'swagger-ui-express'
 import swaggerJSDoc, { Options } from 'swagger-jsdoc'
-import { envConfig } from './constants/config'
+import { envConfig, isProduction } from './constants/config'
+import helmet from 'helmet'
 
 // import '~/utils/fake'
 // import '~/utils/s3'
 
-// const file = fs.readFileSync(path.resolve('twitter-swagger.yaml'), 'utf8')
-// const swaggerDocument = YAML.parse(file)
+const port = envConfig.port
 
-const options: Options = {
+const swaggerJSDocOptions: Options = {
   definition: {
     openapi: '3.1.0',
     info: {
@@ -28,7 +27,7 @@ const options: Options = {
         email: 'taivannho5a@gmail.com'
       }
     },
-    servers: [{ url: 'http://localhost:4000' }],
+    servers: [{ url: `http://localhost:${port}` }],
     components: {
       securitySchemes: {
         BearerAuth: {
@@ -43,7 +42,7 @@ const options: Options = {
   apis: ['./openapi/*.yaml']
 }
 
-const openapiSpecification = swaggerJSDoc(options)
+const openapiSpecification = swaggerJSDoc(swaggerJSDocOptions)
 
 databaseService
   .connect()
@@ -59,12 +58,17 @@ databaseService
   .catch(console.dir)
 
 const app = express()
-const port = envConfig.port
 const httpServer = createServer(app)
 
 // Tạo folders
 initFolders()
-app.use(cors())
+
+const corsOptions: CorsOptions = {
+  origin: isProduction ? envConfig.clientUrl : '*'
+}
+
+app.use(helmet())
+app.use(cors(corsOptions))
 app.use(express.json())
 
 routes(app)
