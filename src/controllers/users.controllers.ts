@@ -42,8 +42,6 @@ export const oauthController = async (req: Request, res: Response) => {
   const urlRedirect = `${process.env.CLIENT_REDIRECT_CALLBACK}?access_token=${data.access_token}&refresh_token=${data.refresh_token}&new_user=${data.new_user}&verify=${data.verify}`
 
   return res.redirect(urlRedirect)
-
-  // return res.json(result)
 }
 
 export const registerController = async (req: Request<object, object, RegisterRequestBody>, res: Response) => {

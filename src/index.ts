@@ -12,12 +12,40 @@ import YAML from 'yaml'
 import fs from 'fs'
 import path from 'path'
 import swaggerUi from 'swagger-ui-express'
+import swaggerJSDoc, { Options } from 'swagger-jsdoc'
 
 // import '~/utils/fake'
 // import '~/utils/s3'
 
-const file = fs.readFileSync(path.resolve('twitter-swagger.yaml'), 'utf8')
-const swaggerDocument = YAML.parse(file)
+// const file = fs.readFileSync(path.resolve('twitter-swagger.yaml'), 'utf8')
+// const swaggerDocument = YAML.parse(file)
+
+const options: Options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Twitter API',
+      version: '1.0.0',
+      contact: {
+        email: 'taivannho5a@gmail.com'
+      }
+    },
+    servers: [{ url: 'http://localhost:4000' }],
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    }
+  },
+  // apis: ['./src/routes/*.routes.ts', './src/models/requests/*.requests.ts'] // files containing annotations as above
+  apis: ['./openapi/*.yaml']
+}
+
+const openapiSpecification = swaggerJSDoc(options)
 
 config()
 databaseService
@@ -44,7 +72,7 @@ app.use(express.json())
 
 routes(app)
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification))
 
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 

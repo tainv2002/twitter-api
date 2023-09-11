@@ -1,0 +1,251 @@
+components:
+  schemas:
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          example: nguyenvantai.quangtri+1@gmail.com
+        password:
+          type: string
+          example: Tai123@
+
+    SuccessAuthentication:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRmNDY0NDIyZDcxNWRjOWJmYjNlN2E1IiwidG9rZW5fdHlwZSI6MCwidmVyaWZ5IjoxLCJpYXQiOjE2OTQzMzc4OTksImV4cCI6MTY5NDQyNzg5OX0.KrV8RL9a0wKVxfb6nvAJJUmHT2mFXUrJNcYDl_6gKJ8
+        refresh_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRmNDY0NDIyZDcxNWRjOWJmYjNlN2E1IiwidG9rZW5fdHlwZSI6MSwidmVyaWZ5IjoxLCJpYXQiOjE2OTQzMzc4OTksImV4cCI6MTcwMjk3Nzg5OX0.3bp_D5ds2TI5L-Or34QFCoJgPMBj8ZD4obGtSaMCN30
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: MongoId
+          example: '64f464422d715dc9bfb3e7a5'
+        name:
+          type: string
+          example: 'Tài Văn'
+        email:
+          type: string
+          example: 'nguyenvantai.quangtri+2@gmail.com'
+        date_of_birth:
+          type: string
+          format: ISO8601
+          example: '2023-07-26T08:42:40.907Z'
+        created_at:
+          type: string
+          format: ISO8601
+          example: '2023-09-03T10:47:30.685Z'
+        updated_at:
+          type: string
+          format: ISO8601
+          example: '2023-09-03T10:47:30.685Z'
+        verify:
+          $ref: '#/components/schemas/UserVerifyStatus'
+          example: 1
+        twitter_circle:
+          type: array
+          format: MongoId
+          items:
+            type: string
+          example: ['64f464422d715dc9bfb3e7a7', '64f464422d715dc9bfb3e7a9']
+        avatar:
+          type: string
+          example: 'https://example.com/avatar.jpg'
+        bio:
+          type: string
+          example: 'I am a software engineer at Google.'
+        location:
+          type: string
+          example: 'Ho Chi Minh City, Vietnam'
+        website:
+          type: string
+          example: 'https://example.com'
+        username:
+          type: string
+          example: 'tai_van'
+        cover_photo:
+          type: string
+          example: 'https://example.com/cover_photo.jpg'
+
+    UserVerifyStatus:
+      type: integer
+      enum:
+        - Unverified
+        - Verified
+        - Banned
+      example: 1
+
+    RegisterBody:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Tài Văn
+        email:
+          type: string
+          example: nguyenvantai.quangtri+6@gmail.com
+        password:
+          type: string
+          example: Tai123@
+        confirm_password:
+          type: string
+          example: Tai123@
+        date_of_birth:
+          type: string
+          format: ISO8601
+          example: 2023-07-26T08:42:40.907Z
+
+    LogoutBody:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRmNDY0NDIyZDcxNWRjOWJmYjNlN2E1IiwidG9rZW5fdHlwZSI6MSwidmVyaWZ5IjoxLCJpYXQiOjE2OTQzMzc4OTksImV4cCI6MTcwMjk3Nzg5OX0.3bp_D5ds2TI5L-Or34QFCoJgPMBj8ZD4obGtSaMCN30
+
+    RefreshTokenBody:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRmNDY0NDIyZDcxNWRjOWJmYjNlN2E1IiwidG9rZW5fdHlwZSI6MSwidmVyaWZ5IjoxLCJpYXQiOjE2OTQzMzc4OTksImV4cCI6MTcwMjk3Nzg5OX0.3bp_D5ds2TI5L-Or34QFCoJgPMBj8ZD4obGtSaMCN30
+
+    VerifyEmailBody:
+      type: object
+      properties:
+        email_verify_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRmNDY0NDIyZDcxNWRjOWJmYjNlN2E1IiwidG9rZW5fdHlwZSI6MSwidmVyaWZ5IjoxLCJpYXQiOjE2OTQzMzc4OTksImV4cCI6MTcwMjk3Nzg5OX0.3bp_D5ds2TI5L-Or34QFCoJgPMBj8ZD4obGtSaMCN30
+
+    VerifyForgotPasswordBody:
+      type: object
+      properties:
+        forgot_password_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRmNDY0NDIyZDcxNWRjOWJmYjNlN2E1IiwidG9rZW5fdHlwZSI6MSwidmVyaWZ5IjoxLCJpYXQiOjE2OTQzMzc4OTksImV4cCI6MTcwMjk3Nzg5OX0.3bp_D5ds2TI5L-Or34QFCoJgPMBj8ZD4obGtSaMCN30
+
+    ResetPasswordBody:
+      type: object
+      properties:
+        forgot_password_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRmNDY0NDIyZDcxNWRjOWJmYjNlN2E1IiwidG9rZW5fdHlwZSI6MSwidmVyaWZ5IjoxLCJpYXQiOjE2OTQzMzc4OTksImV4cCI6MTcwMjk3Nzg5OX0.3bp_D5ds2TI5L-Or34QFCoJgPMBj8ZD4obGtSaMCN30
+        password:
+          type: string
+          example: Tai123@
+        confirm_password:
+          type: string
+          example: Tai123@
+
+    UpdateMeBody:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'Tài Văn'
+        date_of_birth:
+          type: string
+          format: ISO8601
+          example: '2023-07-26T08:42:40.907Z'
+        avatar:
+          type: string
+          example: 'https://example.com/avatar.jpg'
+        bio:
+          type: string
+          example: 'I am a software engineer at Google.'
+        location:
+          type: string
+          example: 'Ho Chi Minh City, Vietnam'
+        website:
+          type: string
+          example: 'https://example.com'
+        username:
+          type: string
+          example: 'tai_van'
+        cover_photo:
+          type: string
+          example: 'https://example.com/cover_photo.jpg'
+
+    FollowBody:
+      type: object
+      properties:
+        followed_user_id:
+          type: string
+          format: MongoId
+          example: 64ec80485eff4eaa804083ee
+
+    ChangePasswordBody:
+      type: object
+      properties:
+        old_password:
+          type: string
+          example: Tai124@
+        password:
+          type: string
+          example: Tai123@
+        confirm_password:
+          type: string
+          example: Tai123@
+
+    MediaType:
+      type: integer
+      enum:
+        - Image
+        - Video
+        - HLS
+      example: 1
+
+    TweetType:
+      type: integer
+      enum:
+        - Tweet
+        - Retweet
+        - Comment
+        - QuoteTweet
+      example: 1
+
+    EncodingStatus:
+      type: integer
+      enum:
+        - Pending
+        - Processing
+        - Fulfilled
+        - Rejected
+      example: 1
+
+    TweetAudience:
+      type: integer
+      enum:
+        - Everyone
+        - TwitterCircle
+      example: 0
+
+    UploadImageBody:
+      type: object
+      properties:
+        image:
+          type: array
+          items:
+            type: string
+            format: binary
+
+    FileResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          url:
+            type: string
+            example: https://twitter-clone-ap-southeast-1-2023.s3.ap-southeast-1.amazonaws.com/images/85bc96c9c325d6b2026d60f00.jpg
+          type:
+            $ref: '#/components/schemas/MediaType'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

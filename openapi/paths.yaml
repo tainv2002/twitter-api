@@ -1,0 +1,500 @@
+openapi: 3.0.3
+info:
+  title: Twitter API
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: taivannho5a@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:4000
+tags:
+  - name: users
+    description: API for Users
+
+  - name: medias
+    description: API for Files
+
+  - name: tweets
+    description: API for Tweets
+
+  - name: bookmarks
+    description: API for Bookmark tweet
+
+  - name: likes
+    description: API for Like tweet
+
+  - name: search
+    description: API for Search tweet
+
+  - name: conversations
+    description: API for Conversations
+paths:
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Login
+      description: Login an user
+      operationId: login
+      requestBody:
+        description: Login request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginBody'
+        required: true
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login successful
+                  data:
+                    $ref: '#/components/schemas/SuccessAuthentication'
+
+        '422':
+          description: Invalid input
+
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Register
+      description: Register new user
+      operationId: register
+      requestBody:
+        description: Register request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterBody'
+        required: true
+      responses:
+        default:
+          description: Register successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Register successful
+                  data:
+                    $ref: '#/components/schemas/SuccessAuthentication'
+        '422':
+          description: Invalid input
+
+  /users/logout:
+    post:
+      tags:
+        - users
+      summary: Logout
+      description: Logout an user
+      operationId: logout
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Logout request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutBody'
+        required: true
+      responses:
+        default:
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logout successful
+        '401':
+          description: Invalid input
+
+  /users/refresh-token:
+    post:
+      tags:
+        - users
+      summary: Refresh token
+      description: Refresh new token
+      operationId: refresh_token
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Refresh token request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenBody'
+        required: true
+      responses:
+        default:
+          description: Refresh token successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Refresh token successfully
+                  data:
+                    $ref: '#/components/schemas/SuccessAuthentication'
+        '401':
+          description: Invalid input
+
+  /users/verify-email:
+    post:
+      tags:
+        - users
+      summary: Verify email
+      description: Verify email
+      operationId: verify_email
+      requestBody:
+        description: Verify email request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailBody'
+        required: true
+      responses:
+        default:
+          description: Verify email successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Verify email successfully
+                  data:
+                    $ref: '#/components/schemas/SuccessAuthentication'
+        '401':
+          description: Invalid input
+
+  /users/resend-verify-email:
+    post:
+      tags:
+        - users
+      summary: Resend verify email
+      description: Resend verify email
+      operationId: resend_verify_email
+      security:
+        - BearerAuth: []
+      responses:
+        default:
+          description: Resend verification email successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Resend verification email successfully
+
+  /users/forgot-password:
+    post:
+      tags:
+        - users
+      summary: Forgot password
+      description: Forgot password
+      operationId: forgot_password
+      responses:
+        default:
+          description: Check email to reset password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Check email to reset password
+
+  /users/verify-forgot-password:
+    post:
+      tags:
+        - users
+      summary: Verify forgot password token
+      description: Verify forgot password token
+      operationId: verify_forgot_password
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Verify forgot password request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyForgotPasswordBody'
+        required: true
+      responses:
+        default:
+          description: Verify forgot password successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Verify forgot password successfully
+        '401':
+          description: Invalid input
+
+  /users/reset-password:
+    post:
+      tags:
+        - users
+      summary: Reset password
+      description: Reset password
+      operationId: reset_password
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Reset password request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordBody'
+        required: true
+      responses:
+        default:
+          description: Reset password successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Reset password successfully
+        '422':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+
+  /users/me:
+    get:
+      tags:
+        - users
+      summary: Get me
+      description: Get my profile
+      operationId: get_me
+      security:
+        - BearerAuth: []
+      responses:
+        default:
+          description: Get me successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get me successfully
+                  data:
+                    $ref: '#/components/schemas/User'
+
+    patch:
+      tags:
+        - users
+      summary: Update me
+      description: Update my profile
+      operationId: update_me
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Update me request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMeBody'
+        required: false
+      responses:
+        default:
+          description: Update me successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Update me successfully
+                  data:
+                    $ref: '#/components/schemas/User'
+        '422':
+          description: Invalid input
+
+  /users/{username}:
+    get:
+      tags:
+        - users
+      summary: Get user profile
+      description: Get user profile
+      operationId: get_user_profile
+      parameters:
+        - name: username
+          in: path
+          description: Username
+          required: true
+          schema:
+            type: string
+            default: tainv
+      responses:
+        default:
+          description: Get profile successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get profile successfully
+                  data:
+                    $ref: '#/components/schemas/User'
+
+        '404':
+          description: 'User not found'
+
+  /users/follow:
+    post:
+      tags:
+        - users
+      summary: Follow an user
+      description: Follow an user
+      operationId: follow
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Follow request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowBody'
+        required: true
+      responses:
+        default:
+          description: Follow an user successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Follow an user successfully
+
+        '404':
+          description: User not found
+
+  /users/follow/{user_id}:
+    delete:
+      tags:
+        - users
+      summary: Unfollow an user
+      description: Unfollow an user
+      operationId: unfollow
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: string
+            format: MongoId
+            default: 64ec80485eff4eaa804083ee
+      responses:
+        default:
+          description: Unfollow an user successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unfollow an user successfully
+
+        '404':
+          description: User not found
+
+  /users/change-password:
+    put:
+      tags:
+        - users
+      summary: Change password
+      description: Change password
+      operationId: change_password
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Change password body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordBody'
+        required: true
+      responses:
+        default:
+          description: Change password successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Change password successfully
+
+        '401':
+          description: Unauthorized
+
+  /medias/upload-image:
+    post:
+      tags:
+        - medias
+      summary: Upload images
+      description: Upload images
+      operationId: upload_images
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Upload images body
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadImageBody'
+        required: true
+      responses:
+        default:
+          description: Upload image successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Upload image successfully
