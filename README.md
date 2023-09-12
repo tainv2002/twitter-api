@@ -22,8 +22,7 @@ This is the backend for the Twitter clone project.
 
 1. Clone the repository.
 2. Run `npm install` to install dependencies.
-3. Create a `.env.development` file in the root directory and fill the blank fields according to `.env.example`
-4. Run `npm run dev` depending on which package manager you use to start the project in development mode.
+3. Create a `.env.development` file in the root directory, copy content of `.env.example` and fill the blank fields.
 
 # Run
 To run application you need:
@@ -43,21 +42,25 @@ To run application you need:
 
 - REST API
 
-- Using Websocket (Socket.io) and Event emit to implement realtime action
+- Using MongoDB as a main data storage
 
-- Using MYSQL as a main data storage
+- Authentication with JWT
 
-- Using TypeORM for mapping your TypeScript objects to a MySQL database
+- Using Oauth login with google
 
-- Using AWS S3 and multer to upload image
+- Using AWS S3 and formidable to upload image, video
+
+- Using AWS SES send email verify user
+
+- Advanced search, based on filters, pagination
 
 - Env based application configuration
 
-- Run with docker-compose
+- Using Websocket (Socket.io) and Event emit to implement realtime chat
 
-- Configured deploy to AWS
+- Write Swagger UI for REST API
 
-- Using Session to Authenticate
+
 
 
 
