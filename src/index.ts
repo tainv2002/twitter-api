@@ -11,6 +11,7 @@ import swaggerUi from 'swagger-ui-express'
 import swaggerJSDoc, { Options } from 'swagger-jsdoc'
 import { envConfig, isProduction } from './constants/config'
 import helmet from 'helmet'
+import { rateLimit } from 'express-rate-limit'
 
 // import '~/utils/fake'
 // import '~/utils/s3'
@@ -67,6 +68,16 @@ const corsOptions: CorsOptions = {
   origin: isProduction ? envConfig.clientUrl : '*'
 }
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
+  legacyHeaders: false // X-RateLimit-* headers
+  // store: ... , // Use an external store for more precise rate limiting
+})
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter)
 app.use(helmet())
 app.use(cors(corsOptions))
 app.use(express.json())
