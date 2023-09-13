@@ -1,6 +1,6 @@
 # Twitter clone API
 
-This is the backend for the Twitter clone project.
+This is a project to clone the REST API of Twitter.
 
 # Contents
 
