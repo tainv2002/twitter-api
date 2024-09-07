@@ -132,6 +132,13 @@ class MediasService {
           url: (s3Result as CompleteMultipartUploadCommandOutput).Location as string,
           type: MediaType.Image
         }
+
+        // return {
+        //   url: isProduction
+        //     ? `${envConfig.host}/static/images/${newName}`
+        //     : `http://localhost:${envConfig.port}/static/images/${newName}`,
+        //   type: MediaType.Image
+        // }
       })
     )
 
