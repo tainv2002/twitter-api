@@ -76,6 +76,8 @@ const limiter = rateLimit({
   // store: ... , // Use an external store for more precise rate limiting
 })
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification))
+
 // Apply the rate limiting middleware to all requests
 app.use(limiter)
 app.use(helmet())
@@ -84,7 +86,6 @@ app.use(express.json())
 
 routes(app)
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification))
 
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 
