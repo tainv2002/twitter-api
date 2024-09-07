@@ -28,7 +28,7 @@ const swaggerJSDocOptions: Options = {
         email: 'taivannho5a@gmail.com'
       }
     },
-    servers: [{ url: `http://localhost:${port}` }],
+    servers: [{ url: isProduction ? envConfig.host : `http://localhost:${port}` }],
     components: {
       securitySchemes: {
         BearerAuth: {
@@ -85,7 +85,6 @@ app.use(cors(corsOptions))
 app.use(express.json())
 
 routes(app)
-
 
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 
