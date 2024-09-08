@@ -1,0 +1,8 @@
+version: '3'
+services:
+  twitter-api:
+      image: taivan/twitter-api:v0
+      ports:
+        - "3000:3000"
+      volumes:
+        - 'D:/Workspace/nodejs/nodejs-super/twitter-api/uploads:/app/uploads'
