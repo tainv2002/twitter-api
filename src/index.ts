@@ -89,7 +89,7 @@ routes(app)
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.send('Hello World!!!')
 })
 
 app.use(defaultErrorHandler)

@@ -19,3 +19,5 @@ Ex: `docker container run -dp 3000:3000 -v D:/Workspace/nodejs/nodejs-super/twit
 - Pull image from Docker Hub:
   - `docker pull <docker_hub_username>/<image_name>`
   Ex: `docker pull taijustin/twitter-api:v0`
+
+- Open terminal in container: `docker exec -it <container_id> sh`

@@ -18,7 +18,7 @@ jobs:
       run: echo "${{ secrets.ENV_PRODUCTION }}" > .env.production
     - name: Build the Docker image
       run: |
-        IMAGE_TAG=taijustin/twitter-api:$(date +%s)
+        IMAGE_TAG=taijustin/twitter-api:v4
         docker build --progress=plain -t $IMAGE_TAG -f Dockerfile .
         echo "::set-output name=image_tag::$IMAGE_TAG"
       id: build
@@ -26,3 +26,20 @@ jobs:
       run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
     - name: Push the Docker image
       run: docker push ${{ steps.build.outputs.image_tag }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.HOST_USERNAME }}
+          password: ${{ secrets.HOST_PASSWORD }}
+          script: |
+            echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            docker pull taijustin/twitter-api:v4
+            docker stop twitter-api
+            docker rm twitter-api 
+            docker run -dp 3000:3000 --name twitter-api --restart unless-stopped -v ~/twitter-api/uploads:/app/uploads taijustin/twitter-api:v4
